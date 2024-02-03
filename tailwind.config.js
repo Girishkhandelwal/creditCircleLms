@@ -1,9 +1,10 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+const withMT = require("@material-tailwind/react/utils/withMT");
+module.exports = withMT({
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js"
   ],
   theme: {
     extend: {
@@ -13,6 +14,14 @@ module.exports = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
+
+    colors: {
+      'primary-color': 'rgb(93, 135, 255)',
+      'secondary-color': '#49BFFE',
+      'success-color': '#12DFB9',
+      'danger-color': '#FFAF1E',
+      'warning-color': '#FB886B',
+    },
   },
   plugins: [],
-};
+});
