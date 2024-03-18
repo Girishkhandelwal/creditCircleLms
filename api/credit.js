@@ -10,11 +10,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 app.use("/api/auth/", AuthRoutes);
 app.use("/api/", OtherRoutes);
-
-
 
 app.listen(process.env.PORT, () => {
     console.log(`server started on port http://localhost:${process.env.PORT}`);

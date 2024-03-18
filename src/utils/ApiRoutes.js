@@ -8,7 +8,6 @@ export const AUTH_ROUTE = `${MAIN_ROUTE}/auth`
 export const LOGIN_ROUTE = `${AUTH_ROUTE}/login`
 
 //OtherRoutes
-
 export const GET_ALL_CAMPAIGNS_ROUTE = `${MAIN_ROUTE}/getAllCampaigns`
 export const GET_ALL_LOAN_TYPES_ROUTE = `${MAIN_ROUTE}/getAllLoanTypes`
 export const GET_LEADS_ROUTE = `${MAIN_ROUTE}/getLeads`
@@ -23,4 +22,7 @@ export const GET_UTM_SOURCE_ROUTE = `${MAIN_ROUTE}/getUtmSources`
 export const GET_LEAD_COLUMN_ROUTE = `${MAIN_ROUTE}/getLeadColumnNames`
 export const ADD_CAMPAIGN_ROUTE = `${MAIN_ROUTE}/createCampaign`
 export const EDIT_CAMPAIGN_ROUTE = `${MAIN_ROUTE}/editCampaign`
+export const GET_UNIQUE_OFFERS_LEADS = `${MAIN_ROUTE}/getUniqueOffersLeads`
+export const GET_OFFERS_LIST = `${MAIN_ROUTE}/getStatusWiseOffersList`
+
 

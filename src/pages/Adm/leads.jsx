@@ -7,10 +7,10 @@ import { GET_EXPORT_LEADS_ROUTE, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRou
 import SelectFields from '../../components/Leads/SelectFields'
 import * as XLSX from 'xlsx';
 import Datepicker from "react-tailwindcss-datepicker";
-import {  useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 export default function Leads() {
-  
+    const [totalLeads, setTotalLeads] = useState(0)
     const [Fields, setFields] = useState([])
     const [selectedFields, setSelectedFields] = useState(['LeadId', 'LoanType', 'FirstName', 'LastName', 'MobileNumber', 'LeadCaptureDateTime']);
     const [selectedCampaign, setSelectedCampaign] = useState("All");
@@ -21,12 +21,12 @@ export default function Leads() {
         endDate: null
     });
 
+
     const campaigns = useSelector((state) => state.data.campaigns);
     const loanTypes = useSelector((state) => state.data.loanTypes);
     const columnNames = useSelector((state) => state.data.columnNames);
     const utmSources = useSelector((state) => state.data.utmSources);
 
-   console.log(utmSources)
 
 
     useEffect(() => {
@@ -34,7 +34,7 @@ export default function Leads() {
         if (selectedCampaign) {
             const campaign = campaigns.find((campaign) => campaign.id == selectedCampaign)
 
-            
+
             const fileds = selectedCampaign != "All" ? campaign.CampaignFields ? campaign.CampaignFields.split(',') : selectedFields : columnNames
 
             setSelectedLoanType(campaign.LoanTypeId)
@@ -72,25 +72,31 @@ export default function Leads() {
     }
 
 
-
-
     return (
 
         <Card className="h-full w-full">
 
-              {/* filter div*/}
+            {/* filter div*/}
             <div className="rounded-none mx-5">
-                <div className='w-1/2  border-[1px] rounded-md border-gray-500 mb-4'>
+                <div className='flex'>
+                    <div className='w-1/2  border-[1px] rounded-md border-gray-500 mb-4 '>
 
-                    <Datepicker
-                        value={dateRange}
-                        onChange={handleValueChange}
-                        showShortcuts={true}
-                        border={true}
+                        <Datepicker
+                            value={dateRange}
+                            onChange={handleValueChange}
+                            showShortcuts={true}
+                            border={true}
 
-                    />
+                        />
+
+
+                    </div>
+                    <div className='mx-5'>
+                        <p className='text-lg'>Total Leads : {totalLeads}</p>
+                    </div>
 
                 </div>
+
                 <div className="flex flex-col justify-between gap-8 md:flex-row md:items-center">
                     <div className="flex gap-4 gap-4">
 
@@ -147,7 +153,7 @@ export default function Leads() {
                     </div>
                 </div>
             </div>
-            <LeadsTable selectedFields={selectedFields} selectedLoanType={selectedLoanType} selectedUtmSource={selectedUtmSource} dateRange={dateRange} />
+            <LeadsTable selectedFields={selectedFields} selectedLoanType={selectedLoanType} selectedUtmSource={selectedUtmSource} dateRange={dateRange} setTotalLeads={setTotalLeads} />
         </Card>
     )
 }

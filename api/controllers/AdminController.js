@@ -13,7 +13,6 @@ export async function getAllCampaigns(req, res) {
     }
 };
 
-
 export async function getAllLoanTypes(req, res) {
     try {
         const prisma = getPrismaInstance();
@@ -36,7 +35,7 @@ export async function getLeads(req, res) {
 
         // Set up filters based on LoanType, UtmSource, and dateRange
         const filters = {};
-        if (LoanType && LoanType != "All") filters['LoanType'] = LoanType;
+        if (LoanType && LoanType != "All") filters['LoanTypeId'] = LoanType;
         if (UtmSource && UtmSource != "All") filters['UtmSource'] = UtmSource;
 
         if (dateRange && dateRange.startDate && dateRange.endDate) {
@@ -66,6 +65,7 @@ export async function getLeads(req, res) {
                         ResponseEdelweiss: true,
                     },
                 },
+                loanType: true,
             },
         });
 
@@ -75,6 +75,7 @@ export async function getLeads(req, res) {
             delete flattenedLead.leadToPushRecord; // Remove the nested leadToPushRecord
             return flattenedLead;
         });
+
 
         // If filters are specified, get count based on the filters; otherwise, get total count
         const totalLeadsCount = Object.keys(filters).length
@@ -90,7 +91,6 @@ export async function getLeads(req, res) {
         res.status(500).json({ error: 'An error occurred' });
     }
 }
-
 
 export async function getLeadsDaily(req, res) {
     try {
@@ -114,7 +114,7 @@ export async function getLeadsDaily(req, res) {
             // Fetch leads for the current LoanType captured today from the database
             const leads = await prisma.Lead.findMany({
                 where: {
-                    LoanType: loanType,
+                    LoanTypeId: loanType,
                     LeadCaptureDateTime: {
                         gte: currentDate.toISOString(), // Use ISOString format
                         lt: endOfDay.toISOString(), // Use ISOString format
@@ -152,7 +152,7 @@ export async function getLeadsWeekly(req, res) {
             // Fetch leads for the current LoanType from the database
             const leads = await prisma.Lead.findMany({
                 where: {
-                    LoanType: loanType,
+                    LoanTypeId: loanType,
                 },
             });
 
@@ -211,7 +211,7 @@ export async function getLeadsMonthly(req, res) {
             // Fetch leads for the current LoanType from the database
             const leads = await prisma.Lead.findMany({
                 where: {
-                    LoanType: loanType,
+                    LoanTypeId: loanType,
                 },
             });
 
@@ -255,7 +255,7 @@ export async function getLeadsYearly(req, res) {
             // Fetch leads for the current LoanType from the database
             const leads = await prisma.Lead.findMany({
                 where: {
-                    LoanType: loanType,
+                    LoanTypeId: loanType,
                 },
             });
 
@@ -299,7 +299,7 @@ export async function getTotalLeadsByLoanType(req, res) {
             // Fetch total leads count for the current LoanType from the database
             const totalLeadsCount = await prisma.Lead.count({
                 where: {
-                    LoanType: loanType,
+                    LoanTypeId: loanType,
                 },
             });
 
@@ -367,7 +367,6 @@ export async function exportLeads(req, res) {
     }
 }
 
-
 export async function getUtmSources(req, res) {
     try {
         const prisma = getPrismaInstance();
@@ -391,7 +390,6 @@ export async function getUtmSources(req, res) {
         res.status(500).json({ error: 'An error occurred' });
     }
 }
-
 
 export async function getLeadColumnNames(req, res) {
     try {
@@ -459,7 +457,6 @@ export async function createCampaign(req, res) {
     }
 }
 
-
 export async function editCampaign(req, res) {
     try {
         const prisma = getPrismaInstance();
@@ -503,4 +500,128 @@ export async function editCampaign(req, res) {
         res.status(500).json({ error: 'An error occurred' });
     }
 }
+
+export async function getUniqueOffersLeads(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { currentPage, pageSize, dateRange, status } = req.body
+
+
+        const skip = (currentPage - 1) * pageSize;
+
+        const filters = {};
+        if (status && status != "All") filters['applicationStatus'] = status;
+        if (dateRange && dateRange.startDate && dateRange.endDate) {
+            // Convert endDate to include time component (end of day)
+            const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
+            filters['applicationDate'] = {
+                gte: new Date(dateRange.startDate),
+                lte: endDateWithTime,
+            };
+        }
+
+        console.log(filters)
+
+        const uniqueLeads = await prisma.offers.findMany({
+            skip,
+            take: parseInt(pageSize),
+            distinct: ['leadId'],
+            where: filters,
+            orderBy: { leadId: 'asc' },
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true
+                    }
+                },
+                personName: true
+            }
+        });
+
+        // Filter out rows where personName is null
+        const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
+
+        // If the number of filtered rows is less than the desired pageSize,
+        // fetch additional rows until the pageSize is met
+        while (filteredLeads.length < pageSize) {
+            const additionalLeads = await prisma.offers.findMany({
+                skip: skip + filteredLeads.length,
+                take: pageSize - filteredLeads.length,
+                distinct: ['leadId'],
+                where: filters,
+                orderBy: { leadId: 'asc' },
+                include: {
+                    partnerName: {
+                        select: {
+                            CampaignName: true
+                        }
+                    },
+                    personName: true
+                }
+            });
+
+            // Filter out rows where personName is null and concatenate them to the filteredLeads array
+            filteredLeads.push(...additionalLeads.filter(lead => lead.personName !== null));
+
+            // Break the loop if there are no more rows to fetch
+            if (additionalLeads.length === 0) {
+                break;
+            }
+        }
+
+        const count = Object.keys(filters).length
+        ? await prisma.offers.count({
+            where: filters,
+        })
+        : await prisma.offers.count();
+
+        res.status(200).json({ uniqueLeads: filteredLeads, count });
+    } catch (error) {
+        console.error('Error fetching distinct leads:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+
+export async function getStatusWiseOffersList(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { status, selectedLead } = req.body
+
+      
+
+        const filters = {};
+        if (status && status != "All") filters['applicationStatus'] = status;
+        if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
+
+       
+
+        const offersList = await prisma.offers.findMany({
+            where: filters,
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true,
+
+                    },
+                },
+                personName: true
+            },
+        });
+
+        res.status(200).json({ offersList });
+    } catch (error) {
+        console.error('Error fetching distinct leads:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+
+
+
+
+
+
+
+
 

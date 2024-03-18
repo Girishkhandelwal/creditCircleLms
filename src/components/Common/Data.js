@@ -19,5 +19,12 @@ export const SideBarList = [
         text: "Campaign",
         pathName: "/campaign"
     },
+
+    {
+        id: 3,
+        icon: <InboxIcon className="h-5 w-5" />,
+        text: "Offers",
+        pathName: "/offers"
+    },
     
 ];

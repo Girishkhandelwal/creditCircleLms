@@ -16,6 +16,7 @@ model Campaign {
   isActive        Int      @default(1)
   LoanTypeId      Int
   loanType        LoanType @relation(fields: [LoanTypeId], references: [id])
+  offers          Offers[]
 
   @@map(name: "tblcampaign")
 }
@@ -24,14 +25,16 @@ model LoanType {
   id         Int        @id @default(autoincrement())
   LoanType   String?
   campaigns  Campaign[]
-
+  leads      Lead[]
   @@map(name: "tblloantype")
 }
 
 
 model Lead {
   LeadId                 Int      @id @default(autoincrement())
-  LoanType               Int?     @map("LoanType") // Mapping to LoanType column in the database
+  loanType LoanType? @relation(fields: [LoanTypeId], references: [id])
+  LoanTypeId Int?    @map("LoanType")
+  FullName               String?  @map("FullName")
   FirstName              String?  @map("FirstName")
   LastName               String?  @map("LastName")
   MobileNumber           String?  @map("MobileNumber")
@@ -95,9 +98,8 @@ model Lead {
   UserDevice             String?  @map("UserDevice")
   UserOs                 String?  @map("UserOs")
   UniqueToken            String?  @map("Unique_Token")
-  leadToPushRecord LeadToPushRecord? 
-
-  @@unique([LeadId])
+  leadToPushRecord       LeadToPushRecord? 
+  offers                 Offers[]
   @@map(name: "tblleads")
 }
 
@@ -153,4 +155,21 @@ model LeadToPushRecord {
   @@map(name: "lead_to_push_records")
   @@index([LeadId], name: "idx_lead_id")
   @@index([Campaign], name: "idx_campaign_Id")
+}
+
+model Offers {
+
+  offerId                  Int      @id
+  personName               Lead?    @relation(fields: [leadId], references: [LeadId]) 
+  leadId                   Int?      @map("leadId")
+  partnerName              Campaign? @relation(fields: [partnerId], references: [id]) 
+  partnerId                Int?      
+  applicationStatus        String?   @map("applicationStatus")
+  applicationRefNumber     String?   @map("applicationRefNumber")
+  requestedAmount          Decimal?  @map("requestedAmount")
+  approvedLimit            Decimal?  @map("approvedLimit")
+  applicationDate          DateTime?   @map("applicationDate")
+  applicationRemark        String?   @map("applicationRemark")
+
+  @@map(name: "tbloffers")
 }

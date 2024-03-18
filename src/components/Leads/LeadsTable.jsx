@@ -7,9 +7,11 @@ import axios from 'axios';
 import { GET_LEADS_ROUTE } from '../../utils/ApiRoutes';
 import { setLeads, setCurrentPage } from '../../globalStates/dataSlice';
 
-export default function LeadsTable({ selectedFields, selectedLoanType, selectedUtmSource, dateRange }) {
+export default function LeadsTable({ selectedFields, selectedLoanType, selectedUtmSource, dateRange, setTotalLeads }) {
+
   const TABLE_HEAD = Array.isArray(selectedFields) ? selectedFields : [selectedFields];;
   const [totalPages, setTotalPages] = useState(null);
+
   const dispatch = useDispatch();
   const leads = useSelector((state) => state.data.leads);
   const currentPage = useSelector((state) => state.data.currentPage);
@@ -23,19 +25,22 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
   const handlePageChange = (newPage) => {
     dispatch(setCurrentPage(newPage));
   };
-
+  
+  
   useEffect(() => {
     axios.post(GET_LEADS_ROUTE, { currentPage, pageSize, LoanType:selectedLoanType, UtmSource:selectedUtmSource, dateRange })
       .then((response) => {
         const totalLeadsCount = response.data.totalLeadsCount;
         const calculatedTotalPages = Math.ceil(totalLeadsCount / pageSize);
         setTotalPages(calculatedTotalPages);
+        setTotalLeads(totalLeadsCount)
         dispatch(setLeads(response.data.leads));
       })
       .catch((error) => {
         console.error('Error fetching leads:', error);
       });
   }, [currentPage, dispatch, selectedLoanType, selectedUtmSource, dateRange]);
+
 
 
   return (
@@ -79,7 +84,7 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
                           color="blue-gray"
                           className="font-normal capitalize"
                         >
-                          {head == 'LeadCaptureDateTime' ? new Date(lead[head]).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : lead[head]}   
+                          {head == 'LeadCaptureDateTime' ? new Date(lead[head]).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : head === 'LoanType' ? lead.loanType?.LoanType : lead[head]}   
                         </Typography>
                       </div>
                     </td>
