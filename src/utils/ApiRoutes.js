@@ -1,6 +1,21 @@
-export const API_URL = 'http://localhost:5001';
+let HOST;
 
-export const MAIN_ROUTE = `${API_URL}/api`
+if (typeof window !== "undefined") {
+  console.log(window.location.origin);
+
+  if (window.location.origin.includes("localhost")) {
+    HOST =  "http://localhost:5001";
+  
+  } else {
+    HOST = window.location.origin;
+
+  }
+} else {
+  HOST =  "http://localhost:5001";
+}
+
+export const MAIN_ROUTE = `${HOST}/api`
+
 
 export const AUTH_ROUTE = `${MAIN_ROUTE}/auth`
 
@@ -24,5 +39,7 @@ export const ADD_CAMPAIGN_ROUTE = `${MAIN_ROUTE}/createCampaign`
 export const EDIT_CAMPAIGN_ROUTE = `${MAIN_ROUTE}/editCampaign`
 export const GET_UNIQUE_OFFERS_LEADS = `${MAIN_ROUTE}/getUniqueOffersLeads`
 export const GET_OFFERS_LIST = `${MAIN_ROUTE}/getStatusWiseOffersList`
+export const GET_WHATSAPP_LOGS = `${MAIN_ROUTE}/getWhatsAppLogs`
+export const GET_LEAD_WISE_WHATSAPPLOGS = `${MAIN_ROUTE}/getLeadWiseWhatsAppLogs`
 
 

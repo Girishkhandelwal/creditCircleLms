@@ -170,6 +170,7 @@ export default function Offers() {
                                 const classes = isLast
                                     ? "p-4"
                                     : "p-4 border-b border-blue-gray-50";
+
                                 const fullName = personName && personName.FullName ? personName.FullName : personName.FirstName + " " + personName.LastName;
 
                                 return (
@@ -202,6 +203,7 @@ export default function Offers() {
                     </tbody>
                 </table>
             </CardBody>
+
             <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
                 <Button
                     variant="outlined"
@@ -282,6 +284,7 @@ export default function Offers() {
                     Next
                 </Button>
             </CardFooter>
+            
         </Card>
     );
 }

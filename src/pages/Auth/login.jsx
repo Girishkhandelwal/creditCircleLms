@@ -14,7 +14,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const router = useRouter();
     const dispatch = useDispatch();
-    const isLogin = useSelector(selectIsLogin)
+    const isLogin = useSelector((state)=> state.data.isLogin)
 
 
     useEffect(() => {

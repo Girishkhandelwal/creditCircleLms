@@ -17,6 +17,7 @@ model Campaign {
   LoanTypeId      Int
   loanType        LoanType @relation(fields: [LoanTypeId], references: [id])
   offers          Offers[]
+  whatsAppLogs    WhatsAppLogs[]
 
   @@map(name: "tblcampaign")
 }
@@ -100,6 +101,7 @@ model Lead {
   UniqueToken            String?  @map("Unique_Token")
   leadToPushRecord       LeadToPushRecord? 
   offers                 Offers[]
+  whatsAppLogs           WhatsAppLogs[]
   @@map(name: "tblleads")
 }
 
@@ -172,4 +174,16 @@ model Offers {
   applicationRemark        String?   @map("applicationRemark")
 
   @@map(name: "tbloffers")
+}
+
+model WhatsAppLogs {
+
+  id                        Int      @id   @map("ID")
+  personName               Lead?     @relation(fields: [leadId], references: [LeadId]) 
+  leadId                   Int?      @map("LeadId")
+  partnerName              Campaign? @relation(fields: [partnerId], references: [id]) 
+  partnerId                Int?      
+  addedDateTime          DateTime?   @map("addedDateTime")
+  
+  @@map(name: "tblwhatsapplog")
 }

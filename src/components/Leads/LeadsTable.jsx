@@ -42,6 +42,12 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
   }, [currentPage, dispatch, selectedLoanType, selectedUtmSource, dateRange]);
 
 
+  function convertToIST(dateString) {
+    const dateObject = new Date(dateString);
+    const formattedDate = `${dateObject.getUTCFullYear()}-${(dateObject.getUTCMonth() + 1).toString().padStart(2, '0')}-${dateObject.getUTCDate().toString().padStart(2, '0')} ${dateObject.getUTCHours().toString().padStart(2, '0')}:${dateObject.getUTCMinutes().toString().padStart(2, '0')}:${dateObject.getUTCSeconds().toString().padStart(2, '0')}`;
+    return formattedDate;
+  }
+
 
   return (
     <>
@@ -84,7 +90,7 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
                           color="blue-gray"
                           className="font-normal capitalize"
                         >
-                          {head == 'LeadCaptureDateTime' ? new Date(lead[head]).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : head === 'LoanType' ? lead.loanType?.LoanType : lead[head]}   
+                          {head == 'LeadCaptureDateTime' ? convertToIST(lead[head]) : head === 'LoanType' ? lead.loanType?.LoanType : lead[head]}   
                         </Typography>
                       </div>
                     </td>

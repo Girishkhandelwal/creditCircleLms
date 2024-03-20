@@ -1,4 +1,5 @@
 import getPrismaInstance from "../utils/PrismaClient.js";
+import { subDays } from 'date-fns';
 
 export async function getAllCampaigns(req, res) {
     try {
@@ -55,16 +56,16 @@ export async function getLeads(req, res) {
                 LeadCaptureDateTime: 'desc',
             },
             include: {
-                leadToPushRecord: {
-                    select: {
-                        ResponseFlexi: true,
-                        ResponseFibe: true,
-                        ResponseMpocket: true,
-                        ResponseCashe: true,
-                        ResponseSafeBima: true,
-                        ResponseEdelweiss: true,
-                    },
-                },
+                // leadToPushRecord: {
+                //     select: {
+                //         ResponseFlexi: true,
+                //         ResponseFibe: true,
+                //         ResponseMpocket: true,
+                //         ResponseCashe: true,
+                //         ResponseSafeBima: true,
+                //         ResponseEdelweiss: true,
+                //     },
+                // },
                 loanType: true,
             },
         });
@@ -615,6 +616,122 @@ export async function getStatusWiseOffersList(req, res) {
         res.status(500).json({ error: 'An error occurred' });
     }
 }
+
+
+export async function getWhatsAppLogs(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { currentPage, pageSize } = req.body
+
+
+        const skip = (currentPage - 1) * pageSize;
+
+        // const filters = {};
+        // if (status && status != "All") filters['applicationStatus'] = status;
+        // if (dateRange && dateRange.startDate && dateRange.endDate) {
+        //     // Convert endDate to include time component (end of day)
+        //     const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
+        //     filters['applicationDate'] = {
+        //         gte: new Date(dateRange.startDate),
+        //         lte: endDateWithTime,
+        //     };
+        // }
+
+        // console.log(filters)
+
+        const uniqueLeads = await prisma.WhatsAppLogs.findMany({
+            skip,
+            take: parseInt(pageSize),
+            distinct: ['leadId'],
+            // where: filters,
+            orderBy: { leadId: 'asc' },
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true
+                    }
+                },
+                personName: true
+            }
+        });
+
+        // Filter out rows where personName is null
+        const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
+
+        // If the number of filtered rows is less than the desired pageSize,
+        // fetch additional rows until the pageSize is met
+        while (filteredLeads.length < pageSize) {
+            const additionalLeads = await prisma.WhatsAppLogs.findMany({
+                skip: skip + filteredLeads.length,
+                take: pageSize - filteredLeads.length,
+                distinct: ['leadId'],
+                // where: filters,
+                orderBy: { leadId: 'asc' },
+                include: {
+                    partnerName: {
+                        select: {
+                            CampaignName: true
+                        }
+                    },
+                    personName: true
+                }
+            });
+
+            // Filter out rows where personName is null and concatenate them to the filteredLeads array
+            filteredLeads.push(...additionalLeads.filter(lead => lead.personName !== null));
+
+            // Break the loop if there are no more rows to fetch
+            if (additionalLeads.length === 0) {
+                break;
+            }
+        }
+
+        const count = await prisma.WhatsAppLogs.count();
+
+        res.status(200).json({ logs: filteredLeads, count });
+    } catch (error) {
+        console.error('Error fetching whatsAppLogs:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+
+export async function getLeadWiseWhatsAppLogs(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const {  selectedLead } = req.body
+
+
+        const filters = {};
+      
+        if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
+
+         const twoDaysAgo = subDays(new Date(), 2);
+
+         filters['addedDateTime'] = {
+             gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
+         };
+
+        const logsData = await prisma.WhatsAppLogs.findMany({
+            where: filters,
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true,
+
+                    },
+                },
+                personName: true
+            },
+        });
+
+        res.status(200).json({ logsData });
+    } catch (error) {
+        console.error('Error fetching distinct leads:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
 
 
 
