@@ -18,7 +18,8 @@ model Campaign {
   loanType        LoanType @relation(fields: [LoanTypeId], references: [id])
   offers          Offers[]
   whatsAppLogs    WhatsAppLogs[]
-
+  LeadPushLogs    LeadPushLogs[]
+  EmailLogs       EmailLogs[]
   @@map(name: "tblcampaign")
 }
 
@@ -29,7 +30,6 @@ model LoanType {
   leads      Lead[]
   @@map(name: "tblloantype")
 }
-
 
 model Lead {
   LeadId                 Int      @id @default(autoincrement())
@@ -102,6 +102,8 @@ model Lead {
   leadToPushRecord       LeadToPushRecord? 
   offers                 Offers[]
   whatsAppLogs           WhatsAppLogs[]
+  LeadPushLogs           LeadPushLogs[]
+  EmailLogs              EmailLogs[]
   @@map(name: "tblleads")
 }
 
@@ -186,4 +188,28 @@ model WhatsAppLogs {
   addedDateTime          DateTime?   @map("addedDateTime")
   
   @@map(name: "tblwhatsapplog")
+}
+
+
+model LeadPushLogs {
+  id                        Int      @id   @map("Id")
+  personName               Lead?     @relation(fields: [leadId], references: [LeadId]) 
+  leadId                   Int?      @map("LeadId")
+  partnerName              Campaign? @relation(fields: [partnerId], references: [id]) 
+  partnerId                Int?      @map("Campaign")
+  addedDateTime            DateTime?   @map("PushDateTime")
+  @@map(name: "lead_push_to_client")
+
+}
+
+model EmailLogs {
+  id                        Int       @id   @map("id")
+  personName               Lead?      @relation(fields: [leadId], references: [LeadId]) 
+  leadId                   Int?       @map("LeadId")
+  partnerName              Campaign?  @relation(fields: [partnerId], references: [id]) 
+  partnerId                Int?       @map("partnerId")
+  addedDateTime            DateTime?  @map("AddedDateTime")
+  type                     String?    @map("type")
+  @@map(name: "tblemailLogs")
+
 }

@@ -621,29 +621,28 @@ export async function getStatusWiseOffersList(req, res) {
 export async function getWhatsAppLogs(req, res) {
     try {
         const prisma = getPrismaInstance();
-        const { currentPage, pageSize } = req.body
+        const { currentPage, pageSize, dateRange } = req.body
 
 
         const skip = (currentPage - 1) * pageSize;
 
-        // const filters = {};
-        // if (status && status != "All") filters['applicationStatus'] = status;
-        // if (dateRange && dateRange.startDate && dateRange.endDate) {
-        //     // Convert endDate to include time component (end of day)
-        //     const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
-        //     filters['applicationDate'] = {
-        //         gte: new Date(dateRange.startDate),
-        //         lte: endDateWithTime,
-        //     };
-        // }
+        const filters = {};
+      
+        if (dateRange && dateRange.startDate && dateRange.endDate) {
+            // Convert endDate to include time component (end of day)
+            const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
+            filters['addedDateTime'] = {
+                gte: new Date(dateRange.startDate),
+                lte: endDateWithTime,
+            };
+        }
 
-        // console.log(filters)
-
+     
         const uniqueLeads = await prisma.WhatsAppLogs.findMany({
             skip,
             take: parseInt(pageSize),
             distinct: ['leadId'],
-            // where: filters,
+            where: filters,
             orderBy: { leadId: 'asc' },
             include: {
                 partnerName: {
@@ -665,7 +664,7 @@ export async function getWhatsAppLogs(req, res) {
                 skip: skip + filteredLeads.length,
                 take: pageSize - filteredLeads.length,
                 distinct: ['leadId'],
-                // where: filters,
+                where: filters,
                 orderBy: { leadId: 'asc' },
                 include: {
                     partnerName: {
@@ -686,7 +685,13 @@ export async function getWhatsAppLogs(req, res) {
             }
         }
 
-        const count = await prisma.WhatsAppLogs.count();
+
+        const count = Object.keys(filters).length
+        ? await prisma.WhatsAppLogs.count({
+            where: filters,
+        })
+        : await prisma.WhatsAppLogs.count();
+     
 
         res.status(200).json({ logs: filteredLeads, count });
     } catch (error) {
@@ -732,7 +737,254 @@ export async function getLeadWiseWhatsAppLogs(req, res) {
     }
 }
 
+export async function getLeadPushLogs(req, res) {
 
+   
+    try {
+        const prisma = getPrismaInstance();
+        const { currentPage, pageSize, dateRange } = req.body
+
+
+        const skip = (currentPage - 1) * pageSize;
+
+        const filters = {};
+      
+        if (dateRange && dateRange.startDate && dateRange.endDate) {
+            // Convert endDate to include time component (end of day)
+            const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
+            filters['addedDateTime'] = {
+                gte: new Date(dateRange.startDate),
+                lte: endDateWithTime,
+            };
+        }
+
+     
+        const uniqueLeads = await prisma.LeadPushLogs.findMany({
+            skip,
+            take: parseInt(pageSize),
+            distinct: ['leadId'],
+            where: filters,
+            orderBy: { leadId: 'asc' },
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true
+                    }
+                },
+                personName: true
+            }
+        });
+
+      
+
+        // Filter out rows where personName is null
+        const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
+
+        // // If the number of filtered rows is less than the desired pageSize,
+        // // fetch additional rows until the pageSize is met
+        // while (filteredLeads.length < pageSize) {
+
+        //     const additionalLeads = await prisma.LeadPushLogs.findMany({
+        //         skip: skip + filteredLeads.length,
+        //         take: pageSize - filteredLeads.length,
+        //         distinct: ['leadId'],
+        //         where: filters,
+        //         orderBy: { leadId: 'asc' },
+        //         include: {
+        //             partnerName: {
+        //                 select: {
+        //                     CampaignName: true
+        //                 }
+        //             },
+        //             personName: true
+        //         }
+        //     });
+
+        //     // Filter out rows where personName is null and concatenate them to the filteredLeads array
+        //     filteredLeads.push(...additionalLeads.filter(lead => lead.personName !== null));
+
+        //     // Break the loop if there are no more rows to fetch
+        //     if (additionalLeads.length === 0) {
+        //         break;
+        //     }
+        // }
+
+        // console.log(filteredLeads)
+
+
+        const count = Object.keys(filters).length
+        ? await prisma.LeadPushLogs.count({
+            where: filters,
+        })
+        : await prisma.LeadPushLogs.count();
+     
+
+        res.status(200).json({ logs: filteredLeads, count });
+    } catch (error) {
+        console.error('Error fetching whatsAppLogs:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+
+export async function getLeadWiseLeadPushLogs(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const {  selectedLead } = req.body
+
+        console.log(selectedLead)
+
+        const filters = {};
+      
+        if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
+
+         const twoDaysAgo = subDays(new Date(), 2);
+
+         filters['addedDateTime'] = {
+             gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
+         };
+
+        
+        const logsData = await prisma.LeadPushLogs.findMany({
+            where: filters,
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true,
+
+                    },
+                },
+                personName: true
+            },
+        });
+
+      
+
+        res.status(200).json({ logsData });
+    } catch (error) {
+        console.error('Error fetching selected lead:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+export async function getEmailLogs(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { currentPage, pageSize, dateRange } = req.body
+
+
+        const skip = (currentPage - 1) * pageSize;
+
+        const filters = {};
+      
+        if (dateRange && dateRange.startDate && dateRange.endDate) {
+            // Convert endDate to include time component (end of day)
+            const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
+            filters['addedDateTime'] = {
+                gte: new Date(dateRange.startDate),
+                lte: endDateWithTime,
+            };
+        }
+
+     
+        const uniqueLeads = await prisma.EmailLogs.findMany({
+            skip,
+            take: parseInt(pageSize),
+            distinct: ['leadId'],
+            where: filters,
+            orderBy: { leadId: 'asc' },
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true
+                    }
+                },
+                personName: true
+            }
+        });
+
+        // Filter out rows where personName is null
+        const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
+
+        // If the number of filtered rows is less than the desired pageSize,
+        // fetch additional rows until the pageSize is met
+        while (filteredLeads.length < pageSize) {
+            const additionalLeads = await prisma.EmailLogs.findMany({
+                skip: skip + filteredLeads.length,
+                take: pageSize - filteredLeads.length,
+                distinct: ['leadId'],
+                where: filters,
+                orderBy: { leadId: 'asc' },
+                include: {
+                    partnerName: {
+                        select: {
+                            CampaignName: true
+                        }
+                    },
+                    personName: true
+                }
+            });
+
+            // Filter out rows where personName is null and concatenate them to the filteredLeads array
+            filteredLeads.push(...additionalLeads.filter(lead => lead.personName !== null));
+
+            // Break the loop if there are no more rows to fetch
+            if (additionalLeads.length === 0) {
+                break;
+            }
+        }
+
+
+        const count = Object.keys(filters).length
+        ? await prisma.EmailLogs.count({
+            where: filters,
+        })
+        : await prisma.EmailLogs.count();
+     
+
+        res.status(200).json({ logs: filteredLeads, count });
+    } catch (error) {
+        console.error('Error fetching EmailLogs:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+
+export async function getLeadWiseEmailogs(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const {  selectedLead } = req.body
+
+
+        const filters = {};
+      
+        if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
+
+         const twoDaysAgo = subDays(new Date(), 2);
+
+         filters['addedDateTime'] = {
+             gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
+         };
+
+        const logsData = await prisma.EmailLogs.findMany({
+            where: filters,
+            include: {
+                partnerName: {
+                    select: {
+                        CampaignName: true,
+
+                    },
+                },
+                personName: true
+            },
+        });
+
+        res.status(200).json({ logsData });
+    } catch (error) {
+        console.error('Error fetching selected lead:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
 
 
 

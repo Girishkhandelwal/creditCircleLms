@@ -41,5 +41,9 @@ export const GET_UNIQUE_OFFERS_LEADS = `${MAIN_ROUTE}/getUniqueOffersLeads`
 export const GET_OFFERS_LIST = `${MAIN_ROUTE}/getStatusWiseOffersList`
 export const GET_WHATSAPP_LOGS = `${MAIN_ROUTE}/getWhatsAppLogs`
 export const GET_LEAD_WISE_WHATSAPPLOGS = `${MAIN_ROUTE}/getLeadWiseWhatsAppLogs`
+export const GET_LEAD_PUSH_LOGS = `${MAIN_ROUTE}/getLeadPushLogs`
+export const GET_LEAD_WISE_LEAD_PUSH_LOGS = `${MAIN_ROUTE}/getLeadWiseLeadPushLogs`
+export const GET_EMAIL_LOGS = `${MAIN_ROUTE}/getEmailLogs`
+export const GET_LEAD_WISE_EMAIL_LOGS = `${MAIN_ROUTE}/getLeadWiseEmailogs`
 
 

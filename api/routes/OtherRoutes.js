@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getAllCampaigns, getAllLoanTypes, getLeads, getLeadsDaily,  getLeadsWeekly, getLeadsMonthly,  getLeadsYearly, getTotalLeadsByLoanType,
- exportLeads, getUtmSources, getLeadColumnNames, createCampaign, editCampaign, getUniqueOffersLeads, getStatusWiseOffersList, getWhatsAppLogs, getLeadWiseWhatsAppLogs } from "../controllers/AdminController.js";
+ exportLeads, getUtmSources, getLeadColumnNames, createCampaign, editCampaign, getUniqueOffersLeads, getStatusWiseOffersList, getWhatsAppLogs,
+  getLeadWiseWhatsAppLogs, getLeadPushLogs, getLeadWiseLeadPushLogs, getEmailLogs, getLeadWiseEmailogs } from "../controllers/AdminController.js";
 
 const router = Router();
 
@@ -21,5 +22,9 @@ router.post("/getUniqueOffersLeads", getUniqueOffersLeads);
 router.post("/getStatusWiseOffersList", getStatusWiseOffersList);
 router.post("/getWhatsAppLogs", getWhatsAppLogs);
 router.post("/getLeadWiseWhatsAppLogs", getLeadWiseWhatsAppLogs);
+router.post("/getLeadPushLogs", getLeadPushLogs)
+router.post("/getLeadWiseLeadPushLogs", getLeadWiseLeadPushLogs)
+router.post("/getEmailLogs", getEmailLogs)
+router.post("/getLeadWiseEmailogs", getLeadWiseEmailogs)
 
 export default router;

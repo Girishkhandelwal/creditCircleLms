@@ -76,12 +76,14 @@ const SideBar = () => {
                                 </ListItem>
                             </Link>
 
+                            <Link href={`/logs/email`}>
                             <ListItem>
                                 <ListItemPrefix>
                                     <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                                 </ListItemPrefix>
                                 Email Logs
                             </ListItem>
+                            </Link>
                         </List>
                     </AccordionBody>
                 </Accordion>

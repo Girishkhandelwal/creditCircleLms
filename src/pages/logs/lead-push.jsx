@@ -15,11 +15,10 @@ import {
 import Track from "@/components/Logs/Track";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { GET_WHATSAPP_LOGS, GET_LEAD_WISE_WHATSAPPLOGS } from "@/utils/ApiRoutes";
-
+import { GET_LEAD_PUSH_LOGS, GET_LEAD_WISE_LEAD_PUSH_LOGS } from "@/utils/ApiRoutes";
+import Datepicker from "react-tailwindcss-datepicker";
 
 const TABLE_HEAD = [""];
-
 
 export default function Logs() {
     const [logs, setLogs] = useState([])
@@ -28,6 +27,11 @@ export default function Logs() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalLeads, setTotalLeads] = useState(0)
     const [logsData, setLogsData] = useState([])
+    const [searchTerm, setSearchTerm] = useState('');
+    const [dateRange, setDateRange] = useState({
+        startDate: null,
+        endDate: null
+    });
 
     const pageSize = 10;
     const startIndex = (currentPage - 1) * pageSize;
@@ -36,7 +40,7 @@ export default function Logs() {
 
     useEffect(() => {
 
-        axios.post(GET_WHATSAPP_LOGS, { currentPage, pageSize }).then((res) => {
+        axios.post(GET_LEAD_PUSH_LOGS, { currentPage, pageSize, dateRange }).then((res) => {
             console.log(res.data)
             setLogs(res.data.logs)
             setTotalLeads(res.data.count)
@@ -45,7 +49,7 @@ export default function Logs() {
             setTotalPages(calculatedTotalPages);
         })
 
-    }, [currentPage])
+    }, [currentPage, dateRange])
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
@@ -53,18 +57,38 @@ export default function Logs() {
 
     useEffect(() => {
 
+        console.log(selectedLead)
+
         if (selectedLead != 0) {
 
-            axios.post(GET_LEAD_WISE_WHATSAPPLOGS, { selectedLead }).then((res) => {
-
-                console.log(res.data)
+            axios.post(GET_LEAD_WISE_LEAD_PUSH_LOGS, { selectedLead }).then((res) => {
+               
                 setLogsData(res.data.logsData)
-
             })
+
         }
 
-
     }, [selectedLead])
+
+
+    const handleSearch = (event) => {
+
+        setSearchTerm(event.target.value);
+    };
+
+
+    const filteredRows = logs.filter(row =>
+
+        (row.personName.FullName && row.personName.FullName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        ((!row.personName.FullName) && (row.personName.FirstName + " " + row.personName.LastName).toLowerCase().includes(searchTerm.toLowerCase()))
+
+    );
+
+    const handleValueChange = (newValue) => {
+        setDateRange(newValue);
+    }
+
+    console.log(logsData)
 
 
     return (
@@ -79,24 +103,42 @@ export default function Logs() {
 
                 </div>
 
+
                 <div className='flex justify-between'>
 
+                    <div className='w-1/2  border-[1px] rounded-md border-gray-500  '>
 
-                    <div className="flex w-full shrink-0 gap-2 md:w-full justify-between">
+                        <Datepicker
+                            value={dateRange}
+                            onChange={handleValueChange}
+                            showShortcuts={true}
+                            border={true}
+
+                        />
+
+                    </div>
+
+                    <div className="flex w-full shrink-0 gap-2 md:w-max">
                         <div className="w-full md:w-72">
                             <Input
                                 label="Search"
                                 icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-
+                                onChange={handleSearch}
                             />
-                        </div>
-
-                        <div className='mx-5'>
-                            <p className='text-lg'>Total Leads : {totalLeads}</p>
                         </div>
 
                     </div>
                 </div>
+
+
+                <div className='flex justify-between mt-5'>
+
+                    <div className='mx-5'>
+                        <p className='text-lg'>Total Leads : {totalLeads}</p>
+                    </div>
+
+                </div>
+
 
             </div>
 
@@ -122,11 +164,13 @@ export default function Logs() {
                     </thead>
                     <tbody className="flex ">
                         <div className="w-[35%]">
-                            {logs.length > 0 && logs.map(({ leadId, personName }, index) => {
+                            {filteredRows.length > 0 && logs.map(({ leadId, personName }, index) => {
                                 const isLast = index === paginatedRows.length - 1;
                                 const classes = isLast
                                     ? "p-4"
                                     : "p-4 border-b border-blue-gray-50";
+
+
 
                                 const fullName = personName && personName.FullName ? personName.FullName : personName.FirstName + " " + personName.LastName;
 

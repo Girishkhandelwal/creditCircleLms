@@ -7,6 +7,7 @@ import Layout from "@/components/Common/Layout";
 
 export default function App({ Component, pageProps }) {
   return (
+
     <Provider store={store}>
       <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
         <ThemeProvider>
@@ -16,5 +17,6 @@ export default function App({ Component, pageProps }) {
         </ThemeProvider>
       </PersistGate>
     </Provider>
+    
   )
 }
