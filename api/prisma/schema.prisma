@@ -20,6 +20,7 @@ model Campaign {
   whatsAppLogs    WhatsAppLogs[]
   LeadPushLogs    LeadPushLogs[]
   EmailLogs       EmailLogs[]
+ 
   @@map(name: "tblcampaign")
 }
 
@@ -104,7 +105,10 @@ model Lead {
   whatsAppLogs           WhatsAppLogs[]
   LeadPushLogs           LeadPushLogs[]
   EmailLogs              EmailLogs[]
+ 
+
   @@map(name: "tblleads")
+
 }
 
 
@@ -192,17 +196,20 @@ model WhatsAppLogs {
 
 
 model LeadPushLogs {
+
   id                        Int      @id   @map("Id")
   personName               Lead?     @relation(fields: [leadId], references: [LeadId]) 
   leadId                   Int?      @map("LeadId")
   partnerName              Campaign? @relation(fields: [partnerId], references: [id]) 
   partnerId                Int?      @map("Campaign")
   addedDateTime            DateTime?   @map("PushDateTime")
+  APIResponse              String?    @map("APIResponse")
   @@map(name: "lead_push_to_client")
 
 }
 
 model EmailLogs {
+
   id                        Int       @id   @map("id")
   personName               Lead?      @relation(fields: [leadId], references: [LeadId]) 
   leadId                   Int?       @map("LeadId")
@@ -213,3 +220,6 @@ model EmailLogs {
   @@map(name: "tblemailLogs")
 
 }
+
+
+

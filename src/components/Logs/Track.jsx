@@ -8,7 +8,7 @@ import {
 
 export default function Track({ logsData }) {
 
-    console.log(logsData)
+    
 
     function convertToIST(dateTimeString) {
         // Convert string to Date object

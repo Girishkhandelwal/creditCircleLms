@@ -56,24 +56,40 @@ export async function getLeads(req, res) {
                 LeadCaptureDateTime: 'desc',
             },
             include: {
-                // leadToPushRecord: {
-                //     select: {
-                //         ResponseFlexi: true,
-                //         ResponseFibe: true,
-                //         ResponseMpocket: true,
-                //         ResponseCashe: true,
-                //         ResponseSafeBima: true,
-                //         ResponseEdelweiss: true,
-                //     },
-                // },
+                offers: {
+                    select: {
+                        partnerId: true,
+                        applicationStatus: true,
+
+                    },
+                },
                 loanType: true,
             },
         });
 
+        const campaigns = await prisma.Campaign.findMany({
+            select: {
+                id: true,
+                CampaignName: true
+            }
+        });
+
+
+
         // Transform the data before sending the response
         const transformedLeads = leads.map((lead) => {
             const flattenedLead = { ...lead, ...lead.leadToPushRecord };
+
+            if (lead.offers && lead.offers.length > 0) {
+                for (let i = 0; i < lead.offers.length; i++) {
+                    const partnerName = campaigns.find((c) => c.id == lead.offers[i].partnerId).CampaignName
+                    flattenedLead[partnerName] = lead.offers[i].applicationStatus;
+                }
+            }
+
             delete flattenedLead.leadToPushRecord; // Remove the nested leadToPushRecord
+            delete flattenedLead.offers;
+
             return flattenedLead;
         });
 
@@ -402,15 +418,16 @@ export async function getLeadColumnNames(req, res) {
             WHERE TABLE_NAME = 'tblleads';
         `;
 
-        // Additional columns from LeadToPushRecord
-        const additionalColumns = [
-            'ResponseFlexi',
-            'ResponseFibe',
-            'ResponseMpocket',
-            'ResponseCashe',
-            'ResponseSafeBima',
-            'ResponseEdelweiss',
-        ];
+        const campaigns = await prisma.Campaign.findMany({
+            select: {
+                CampaignName: true
+            }
+        });
+
+
+
+
+        const additionalColumns = campaigns.map((a) => a.CampaignName)
 
         // Combine both sets of columns
         const allColumns = [...leadTableColumns.map((column) => column.COLUMN_NAME), ...additionalColumns];
@@ -521,7 +538,7 @@ export async function getUniqueOffersLeads(req, res) {
             };
         }
 
-        console.log(filters)
+
 
         const uniqueLeads = await prisma.offers.findMany({
             skip,
@@ -544,39 +561,46 @@ export async function getUniqueOffersLeads(req, res) {
 
         // If the number of filtered rows is less than the desired pageSize,
         // fetch additional rows until the pageSize is met
-        while (filteredLeads.length < pageSize) {
-            const additionalLeads = await prisma.offers.findMany({
-                skip: skip + filteredLeads.length,
-                take: pageSize - filteredLeads.length,
-                distinct: ['leadId'],
-                where: filters,
-                orderBy: { leadId: 'asc' },
-                include: {
-                    partnerName: {
-                        select: {
-                            CampaignName: true
-                        }
-                    },
-                    personName: true
-                }
-            });
+        // while (filteredLeads.length < pageSize) {
+        //     const additionalLeads = await prisma.offers.findMany({
+        //         skip: skip + filteredLeads.length,
+        //         take: pageSize - filteredLeads.length,
+        //         distinct: ['leadId'],
+        //         where: filters,
+        //         orderBy: { leadId: 'asc' },
+        //         include: {
+        //             partnerName: {
+        //                 select: {
+        //                     CampaignName: true
+        //                 }
+        //             },
+        //             personName: true
+        //         }
+        //     });
 
-            // Filter out rows where personName is null and concatenate them to the filteredLeads array
-            filteredLeads.push(...additionalLeads.filter(lead => lead.personName !== null));
+        //     // Filter out rows where personName is null and concatenate them to the filteredLeads array
+        //     filteredLeads.push(...additionalLeads.filter(lead => lead.personName !== null));
 
-            // Break the loop if there are no more rows to fetch
-            if (additionalLeads.length === 0) {
-                break;
-            }
-        }
+        //     // Break the loop if there are no more rows to fetch
+        //     if (additionalLeads.length === 0) {
+        //         break;
+        //     }
+        // }
 
         const count = Object.keys(filters).length
-        ? await prisma.offers.count({
-            where: filters,
-        })
-        : await prisma.offers.count();
+            ? await prisma.$queryRaw`
+    SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+    FROM tbloffers
+    WHERE ${filters}
+  `
+            : await prisma.$queryRaw`
+    SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+    FROM tbloffers
+  `;
 
-        res.status(200).json({ uniqueLeads: filteredLeads, count });
+        const totalCount = count[0].distinctLeadCount || count[0].totalCount;
+
+        res.status(200).json({ uniqueLeads: filteredLeads, count: parseInt(totalCount, 10) });
     } catch (error) {
         console.error('Error fetching distinct leads:', error);
         res.status(500).json({ error: 'An error occurred' });
@@ -589,13 +613,13 @@ export async function getStatusWiseOffersList(req, res) {
         const prisma = getPrismaInstance();
         const { status, selectedLead } = req.body
 
-      
+
 
         const filters = {};
         if (status && status != "All") filters['applicationStatus'] = status;
         if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
 
-       
+
 
         const offersList = await prisma.offers.findMany({
             where: filters,
@@ -627,7 +651,7 @@ export async function getWhatsAppLogs(req, res) {
         const skip = (currentPage - 1) * pageSize;
 
         const filters = {};
-      
+
         if (dateRange && dateRange.startDate && dateRange.endDate) {
             // Convert endDate to include time component (end of day)
             const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
@@ -637,7 +661,7 @@ export async function getWhatsAppLogs(req, res) {
             };
         }
 
-     
+
         const uniqueLeads = await prisma.WhatsAppLogs.findMany({
             skip,
             take: parseInt(pageSize),
@@ -653,6 +677,7 @@ export async function getWhatsAppLogs(req, res) {
                 personName: true
             }
         });
+        
 
         // Filter out rows where personName is null
         const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
@@ -685,15 +710,21 @@ export async function getWhatsAppLogs(req, res) {
             }
         }
 
-
         const count = Object.keys(filters).length
-        ? await prisma.WhatsAppLogs.count({
-            where: filters,
-        })
-        : await prisma.WhatsAppLogs.count();
-     
+            ? await prisma.$queryRaw`
+            SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+            FROM tblwhatsapplog
+            WHERE ${filters}
+          `
+            : await prisma.$queryRaw`
+            SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+            FROM tblwhatsapplog
+          `;
 
-        res.status(200).json({ logs: filteredLeads, count });
+        const totalCount = count[0].distinctLeadCount || count[0].totalCount;
+
+
+        res.status(200).json({ logs: filteredLeads, count: parseInt(totalCount, 10) });
     } catch (error) {
         console.error('Error fetching whatsAppLogs:', error);
         res.status(500).json({ error: 'An error occurred' });
@@ -704,18 +735,18 @@ export async function getWhatsAppLogs(req, res) {
 export async function getLeadWiseWhatsAppLogs(req, res) {
     try {
         const prisma = getPrismaInstance();
-        const {  selectedLead } = req.body
+        const { selectedLead } = req.body
 
 
         const filters = {};
-      
+
         if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
 
-         const twoDaysAgo = subDays(new Date(), 2);
+        const twoDaysAgo = subDays(new Date(), 2);
 
-         filters['addedDateTime'] = {
-             gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
-         };
+        filters['addedDateTime'] = {
+            gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
+        };
 
         const logsData = await prisma.WhatsAppLogs.findMany({
             where: filters,
@@ -739,8 +770,8 @@ export async function getLeadWiseWhatsAppLogs(req, res) {
 
 export async function getLeadPushLogs(req, res) {
 
-   
     try {
+
         const prisma = getPrismaInstance();
         const { currentPage, pageSize, dateRange } = req.body
 
@@ -748,7 +779,7 @@ export async function getLeadPushLogs(req, res) {
         const skip = (currentPage - 1) * pageSize;
 
         const filters = {};
-      
+
         if (dateRange && dateRange.startDate && dateRange.endDate) {
             // Convert endDate to include time component (end of day)
             const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
@@ -758,7 +789,7 @@ export async function getLeadPushLogs(req, res) {
             };
         }
 
-     
+
         const uniqueLeads = await prisma.LeadPushLogs.findMany({
             skip,
             take: parseInt(pageSize),
@@ -775,7 +806,6 @@ export async function getLeadPushLogs(req, res) {
             }
         });
 
-      
 
         // Filter out rows where personName is null
         const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
@@ -813,13 +843,19 @@ export async function getLeadPushLogs(req, res) {
 
 
         const count = Object.keys(filters).length
-        ? await prisma.LeadPushLogs.count({
-            where: filters,
-        })
-        : await prisma.LeadPushLogs.count();
-     
+            ? await prisma.$queryRaw`
+        SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+        FROM lead_push_to_client
+        WHERE ${filters}
+      `
+            : await prisma.$queryRaw`
+        SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+        FROM lead_push_to_client
+      `;
 
-        res.status(200).json({ logs: filteredLeads, count });
+        const totalCount = count[0].distinctLeadCount || count[0].totalCount;
+
+        res.status(200).json({ logs: filteredLeads, count: parseInt(totalCount, 10) });
     } catch (error) {
         console.error('Error fetching whatsAppLogs:', error);
         res.status(500).json({ error: 'An error occurred' });
@@ -830,21 +866,21 @@ export async function getLeadPushLogs(req, res) {
 export async function getLeadWiseLeadPushLogs(req, res) {
     try {
         const prisma = getPrismaInstance();
-        const {  selectedLead } = req.body
+        const { selectedLead } = req.body
 
         console.log(selectedLead)
 
         const filters = {};
-      
+
         if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
 
-         const twoDaysAgo = subDays(new Date(), 2);
+        const twoDaysAgo = subDays(new Date(), 2);
 
-         filters['addedDateTime'] = {
-             gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
-         };
+        filters['addedDateTime'] = {
+            gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
+        };
 
-        
+
         const logsData = await prisma.LeadPushLogs.findMany({
             where: filters,
             include: {
@@ -858,7 +894,7 @@ export async function getLeadWiseLeadPushLogs(req, res) {
             },
         });
 
-      
+
 
         res.status(200).json({ logsData });
     } catch (error) {
@@ -876,7 +912,7 @@ export async function getEmailLogs(req, res) {
         const skip = (currentPage - 1) * pageSize;
 
         const filters = {};
-      
+
         if (dateRange && dateRange.startDate && dateRange.endDate) {
             // Convert endDate to include time component (end of day)
             const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
@@ -886,7 +922,7 @@ export async function getEmailLogs(req, res) {
             };
         }
 
-     
+
         const uniqueLeads = await prisma.EmailLogs.findMany({
             skip,
             take: parseInt(pageSize),
@@ -936,13 +972,19 @@ export async function getEmailLogs(req, res) {
 
 
         const count = Object.keys(filters).length
-        ? await prisma.EmailLogs.count({
-            where: filters,
-        })
-        : await prisma.EmailLogs.count();
-     
+            ? await prisma.$queryRaw`
+        SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+        FROM tblemailLogs
+        WHERE ${filters}
+      `
+            : await prisma.$queryRaw`
+        SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
+        FROM tblemailLogs
+      `;
 
-        res.status(200).json({ logs: filteredLeads, count });
+        const totalCount = count[0].distinctLeadCount || count[0].totalCount;
+
+        res.status(200).json({ logs: filteredLeads, count: parseInt(totalCount, 10) });
     } catch (error) {
         console.error('Error fetching EmailLogs:', error);
         res.status(500).json({ error: 'An error occurred' });
@@ -953,18 +995,18 @@ export async function getEmailLogs(req, res) {
 export async function getLeadWiseEmailogs(req, res) {
     try {
         const prisma = getPrismaInstance();
-        const {  selectedLead } = req.body
+        const { selectedLead } = req.body
 
 
         const filters = {};
-      
+
         if (selectedLead && selectedLead != 0) filters['leadId'] = selectedLead;
 
-         const twoDaysAgo = subDays(new Date(), 2);
+        const twoDaysAgo = subDays(new Date(), 2);
 
-         filters['addedDateTime'] = {
-             gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
-         };
+        filters['addedDateTime'] = {
+            gte: twoDaysAgo.toISOString(), // Greater than or equal to two days ago
+        };
 
         const logsData = await prisma.EmailLogs.findMany({
             where: filters,

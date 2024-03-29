@@ -52,8 +52,10 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
   return (
     <>
       <CardBody className="overflow-scroll px-0">
-        <table className="w-full min-w-max table-auto text-left">
-          <thead>
+        <div className='max-h-96'>
+          
+        <table className="w-full min-w-max table-auto text-left ">
+          <thead className='sticky -top-6 bg-blue-200'>
             <tr>
               {TABLE_HEAD.map((head) => (
                 <th
@@ -101,6 +103,8 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
           </tbody>
 
         </table>
+
+        </div>
       </CardBody>
       <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
         <Button

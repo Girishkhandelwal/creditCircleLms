@@ -78,6 +78,7 @@ export default function Leads() {
 
             {/* filter div*/}
             <div className="rounded-none mx-5">
+                
                 <div className='flex'>
                     <div className='w-1/2  border-[1px] rounded-md border-gray-500 mb-4 '>
 
@@ -152,6 +153,7 @@ export default function Leads() {
 
                     </div>
                 </div>
+
             </div>
             <LeadsTable selectedFields={selectedFields} selectedLoanType={selectedLoanType} selectedUtmSource={selectedUtmSource} dateRange={dateRange} setTotalLeads={setTotalLeads} />
         </Card>

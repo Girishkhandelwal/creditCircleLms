@@ -114,7 +114,7 @@ export default function Logs() {
 
                     </div>
 
-                    <div className="flex w-full shrink-0 gap-2 md:w-max">
+                    {/* <div className="flex w-full shrink-0 gap-2 md:w-max">
                         <div className="w-full md:w-72">
                             <Input
                                 label="Search"
@@ -123,7 +123,7 @@ export default function Logs() {
                             />
                         </div>
 
-                    </div>
+                    </div> */}
                 </div>
 
 
