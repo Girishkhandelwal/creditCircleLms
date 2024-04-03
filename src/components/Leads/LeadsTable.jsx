@@ -7,7 +7,7 @@ import axios from 'axios';
 import { GET_LEADS_ROUTE } from '../../utils/ApiRoutes';
 import { setLeads, setCurrentPage } from '../../globalStates/dataSlice';
 
-export default function LeadsTable({ selectedFields, selectedLoanType, selectedUtmSource, dateRange, setTotalLeads }) {
+export default function LeadsTable({ selectedFields, selectedLoanType, selectedUtmSource, dateRange, setTotalLeads, status }) {
 
   const TABLE_HEAD = Array.isArray(selectedFields) ? selectedFields : [selectedFields];;
   const [totalPages, setTotalPages] = useState(null);
@@ -28,7 +28,7 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
   
   
   useEffect(() => {
-    axios.post(GET_LEADS_ROUTE, { currentPage, pageSize, LoanType:selectedLoanType, UtmSource:selectedUtmSource, dateRange })
+    axios.post(GET_LEADS_ROUTE, { currentPage, pageSize, LoanType:selectedLoanType, UtmSource:selectedUtmSource, dateRange, applicationStatus : status })
       .then((response) => {
         const totalLeadsCount = response.data.totalLeadsCount;
         const calculatedTotalPages = Math.ceil(totalLeadsCount / pageSize);
@@ -39,7 +39,7 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
       .catch((error) => {
         console.error('Error fetching leads:', error);
       });
-  }, [currentPage, dispatch, selectedLoanType, selectedUtmSource, dateRange]);
+  }, [currentPage, dispatch, selectedLoanType, selectedUtmSource, dateRange, status]);
 
 
   function convertToIST(dateString) {

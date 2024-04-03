@@ -22,12 +22,13 @@ const TABLE_HEAD = [""];
 
 export default function Logs() {
     const [logs, setLogs] = useState([])
-    const [selectedLead, setSelectedLead] = useState(0)
+    const [selectedLead, setSelectedLead] = useState(0) 
     const [totalPages, setTotalPages] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalLeads, setTotalLeads] = useState(0)
     const [logsData, setLogsData] = useState([])
     const [searchTerm, setSearchTerm] = useState('');
+
     const [dateRange, setDateRange] = useState({
         startDate: null,
         endDate: null
@@ -41,7 +42,6 @@ export default function Logs() {
     useEffect(() => {
 
         axios.post(GET_WHATSAPP_LOGS, { currentPage, pageSize, dateRange }).then((res) => {
-            console.log(res.data)
             setLogs(res.data.logs)
             setTotalLeads(res.data.count)
             const totalLeadsCount = res.data.count;
@@ -85,7 +85,7 @@ export default function Logs() {
         setDateRange(newValue);
     }
 
-
+ 
     return (
         <Card className="h-full w-full">
             <div className="rounded-none p-5" >
@@ -123,6 +123,7 @@ export default function Logs() {
                         </div>
 
                     </div> */}
+
                 </div>
 
 

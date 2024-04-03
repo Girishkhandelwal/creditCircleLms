@@ -18,34 +18,30 @@ import axios from "axios";
 import { GET_LEAD_PUSH_LOGS, GET_LEAD_WISE_LEAD_PUSH_LOGS } from "@/utils/ApiRoutes";
 import Datepicker from "react-tailwindcss-datepicker";
 
-const TABLE_HEAD = [""];
+const TABLE_HEAD = ["Id",  "PartnerName", "Success", "Failure", "Pending", "Reject", "Total Count"];
 
 export default function Logs() {
     const [logs, setLogs] = useState([])
-    const [selectedLead, setSelectedLead] = useState(0)
     const [totalPages, setTotalPages] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalLeads, setTotalLeads] = useState(0)
-    const [logsData, setLogsData] = useState([])
     const [searchTerm, setSearchTerm] = useState('');
     const [dateRange, setDateRange] = useState({
         startDate: null,
         endDate: null
     });
 
-    const pageSize = 10;
+    const pageSize = 20;
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     const paginatedRows = logs.slice(startIndex, endIndex);
 
     useEffect(() => {
 
-        axios.post(GET_LEAD_PUSH_LOGS, { currentPage, pageSize, dateRange }).then((res) => {
-            console.log(res.data)
+        axios.post(GET_LEAD_PUSH_LOGS, { dateRange }).then((res) => {
             setLogs(res.data.logs)
             setTotalLeads(res.data.count)
-            const totalLeadsCount = res.data.count;
-            const calculatedTotalPages = Math.ceil(totalLeadsCount / pageSize);
+            const calculatedTotalPages = Math.ceil(res.data.logs.length / pageSize);
             setTotalPages(calculatedTotalPages);
         })
 
@@ -54,21 +50,6 @@ export default function Logs() {
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
     };
-
-    useEffect(() => {
-
-        console.log(selectedLead)
-
-        if (selectedLead != 0) {
-
-            axios.post(GET_LEAD_WISE_LEAD_PUSH_LOGS, { selectedLead }).then((res) => {
-               
-                setLogsData(res.data.logsData)
-            })
-
-        }
-
-    }, [selectedLead])
 
 
     const handleSearch = (event) => {
@@ -79,8 +60,7 @@ export default function Logs() {
 
     const filteredRows = logs.filter(row =>
 
-        (row.personName.FullName && row.personName.FullName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        ((!row.personName.FullName) && (row.personName.FirstName + " " + row.personName.LastName).toLowerCase().includes(searchTerm.toLowerCase()))
+        (row.partnerName.CampaignName && row.partnerName.CampaignName.toLowerCase().includes(searchTerm.toLowerCase()))
 
     );
 
@@ -88,11 +68,12 @@ export default function Logs() {
         setDateRange(newValue);
     }
 
-    console.log(logsData)
 
 
     return (
+
         <Card className="h-full w-full">
+
             <div className="rounded-none p-5" >
                 <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
                     <div>
@@ -128,23 +109,14 @@ export default function Logs() {
                         </div>
 
                     </div> */}
+                    
                 </div>
-
-
-                <div className='flex justify-between mt-5'>
-
-                    <div className='mx-5'>
-                        <p className='text-lg'>Total Leads : {totalLeads}</p>
-                    </div>
-
-                </div>
-
 
             </div>
 
             <CardBody className="overflow-scroll px-0">
                 <table className="w-full min-w-max table-auto text-left">
-                    <thead className="w-[90%]">
+                    <thead>
                         <tr>
                             {TABLE_HEAD.map((head) => (
                                 <th
@@ -154,56 +126,76 @@ export default function Logs() {
                                     <Typography
                                         variant="small"
                                         color="blue-gray"
-                                        className="font-normal leading-none opacity-70 text-center font-bold"
+                                        className="font-normal leading-none opacity-70"
                                     >
-                                        Logs
+                                        {head}
                                     </Typography>
                                 </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="flex ">
-                        <div className="w-[35%]">
-                            {filteredRows.length > 0 && logs.map(({ leadId, personName }, index) => {
+                    <tbody className=" ">
+                        
+                            {filteredRows.length > 0 && logs.map(({ partnerId, partnerName, successCount, failureCount, pendingCount, rejectCount }, index) => {
                                 const isLast = index === paginatedRows.length - 1;
                                 const classes = isLast
                                     ? "p-4"
                                     : "p-4 border-b border-blue-gray-50";
-
-
-
-                                const fullName = personName && personName.FullName ? personName.FullName : personName.FirstName + " " + personName.LastName;
-
                                 return (
                                     <tr key={index}>
-                                        <td className={classes} onClick={() => setSelectedLead(leadId)} >
-                                            <Typography
-                                                variant="small"
-                                                color="blue-gray"
-                                                className="font-normal text-md text-blue-500 cursor-pointer"
-                                            >
-                                                {fullName}
+                                        <td className={classes}>
+                                            <div className="flex items-center gap-3">
+                                                <Typography variant="small" color="blue-gray" className="font-bold">
+                                                    {partnerId}
+                                                </Typography>
+                                            </div>
+                                        </td>
+                                        <td className={classes}>
+                                            <Typography variant="small" color="blue-gray" className="font-normal">
+                                                {partnerName.CampaignName}
                                             </Typography>
                                         </td>
                                         <td className={classes}>
-                                            <Typography
-                                                variant="small"
-                                                color="blue-gray"
-                                                className="font-normal text-md "
-                                            >
-                                                Phone No.  :  {personName.MobileNumber}
+                                            <div className="flex items-center gap-3">
+                                                <Typography variant="small" color="blue-gray" className="font-bold">
+                                                    {successCount}
+                                                </Typography>
+                                            </div>
+                                        </td>
+                                        <td className={classes}>
+                                            <Typography variant="small" color="blue-gray" className="font-normal">
+                                                {failureCount}
                                             </Typography>
                                         </td>
+                                        <td className={classes}>
+                                            <div className="flex items-center gap-3">
+                                                <Typography variant="small" color="blue-gray" className="font-bold">
+                                                    {pendingCount}
+                                                </Typography>
+                                            </div>
+                                        </td>
+                                        <td className={classes}>
+                                            <Typography variant="small" color="blue-gray" className="font-normal">
+                                                {rejectCount}
+                                            </Typography>
+                                        </td>
+
+                                        <td className={classes}>
+                                            <Typography variant="small" color="blue-gray" className="font-normal">
+                                                {successCount + failureCount + pendingCount + rejectCount}
+                                            </Typography>
+                                        </td>
+                                       
                                     </tr>
                                 );
                             })}
-                        </div>
-                        <div className='w-[55%]'>
-                            <Track logsData={logsData} />
-                        </div>
+                       
+
                     </tbody>
                 </table>
             </CardBody>
+
+
             <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
                 <Button
                     variant="outlined"
@@ -284,6 +276,8 @@ export default function Logs() {
                     Next
                 </Button>
             </CardFooter>
+
+
         </Card>
     );
 }

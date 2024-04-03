@@ -30,14 +30,14 @@ export async function getAllLoanTypes(req, res) {
 export async function getLeads(req, res) {
     try {
         const prisma = getPrismaInstance();
-        const { currentPage, pageSize, LoanType, UtmSource, dateRange } = req.body;
+        const { currentPage, pageSize, LoanType, UtmSource, dateRange, applicationStatus } = req.body;
 
         const skip = (currentPage - 1) * pageSize;
 
         // Set up filters based on LoanType, UtmSource, and dateRange
         const filters = {};
-        if (LoanType && LoanType != "All") filters['LoanTypeId'] = LoanType;
-        if (UtmSource && UtmSource != "All") filters['UtmSource'] = UtmSource;
+        if (LoanType && LoanType !== "All") filters['LoanTypeId'] = LoanType;
+        if (UtmSource && UtmSource !== "All") filters['UtmSource'] = UtmSource;
 
         if (dateRange && dateRange.startDate && dateRange.endDate) {
             // Convert endDate to include time component (end of day)
@@ -45,6 +45,15 @@ export async function getLeads(req, res) {
             filters['LeadCaptureDateTime'] = {
                 gte: new Date(dateRange.startDate),
                 lte: endDateWithTime,
+            };
+        }
+
+        // Add filter for applicationStatus if not 'All'
+        if (applicationStatus && applicationStatus !== "All") {
+            filters['offers'] = {
+                some: {
+                    applicationStatus: applicationStatus
+                }
             };
         }
 
@@ -60,20 +69,18 @@ export async function getLeads(req, res) {
                     select: {
                         partnerId: true,
                         applicationStatus: true,
-
                     },
+                    where: applicationStatus && applicationStatus !== "All" ? { applicationStatus: applicationStatus } : undefined
                 },
                 loanType: true,
             },
         });
-
         const campaigns = await prisma.Campaign.findMany({
             select: {
                 id: true,
                 CampaignName: true
             }
         });
-
 
 
         // Transform the data before sending the response
@@ -92,7 +99,6 @@ export async function getLeads(req, res) {
 
             return flattenedLead;
         });
-
 
         // If filters are specified, get count based on the filters; otherwise, get total count
         const totalLeadsCount = Object.keys(filters).length
@@ -333,14 +339,14 @@ export async function getTotalLeadsByLoanType(req, res) {
 }
 
 export async function exportLeads(req, res) {
-    const { LoanType, selectedFields, UtmSource, dateRange } = req.body;
+    const { LoanType, selectedFields, UtmSource, dateRange, applicationStatus } = req.body;
 
     try {
         const prisma = getPrismaInstance();
 
         // Customize your query to fetch leads data based on filters
         const filters = {};
-        if (LoanType && LoanType != "All") filters['LoanType'] = LoanType;
+        if (LoanType && LoanType != "All") filters['LoanTypeId'] = LoanType;
         if (UtmSource && UtmSource != "All") filters['UtmSource'] = UtmSource;
 
         if (dateRange && dateRange.startDate && dateRange.endDate) {
@@ -357,10 +363,45 @@ export async function exportLeads(req, res) {
             orderBy: {
                 LeadCaptureDateTime: 'desc',
             },
+            include: {
+                offers: {
+                    select: {
+                        partnerId: true,
+                        applicationStatus: true,
+                    },
+                    where: applicationStatus && applicationStatus !== "All" ? { applicationStatus: applicationStatus } : undefined
+                },
+                loanType: true,
+            },
+        });
+
+        const campaigns = await prisma.Campaign.findMany({
+            select: {
+                id: true,
+                CampaignName: true
+            }
+        });
+
+
+        // Transform the data before sending the response
+        const transformedLeads2 = leads.map((lead) => {
+            const flattenedLead = { ...lead, ...lead.leadToPushRecord };
+
+            if (lead.offers && lead.offers.length > 0) {
+                for (let i = 0; i < lead.offers.length; i++) {
+                    const partnerName = campaigns.find((c) => c.id == lead.offers[i].partnerId).CampaignName
+                    flattenedLead[partnerName] = lead.offers[i].applicationStatus;
+                }
+            }
+
+            delete flattenedLead.leadToPushRecord; // Remove the nested leadToPushRecord
+            delete flattenedLead.offers;
+
+            return flattenedLead;
         });
 
         // Transform leads data based on selectedFields
-        const transformedLeads = leads.map((lead) => {
+        const transformedLeads = transformedLeads2.map((lead) => {
             const transformedLead = {};
             selectedFields.forEach((field) => {
                 // Use explicit "null" for empty fields
@@ -677,7 +718,7 @@ export async function getWhatsAppLogs(req, res) {
                 personName: true
             }
         });
-        
+
 
         // Filter out rows where personName is null
         const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
@@ -773,89 +814,79 @@ export async function getLeadPushLogs(req, res) {
     try {
 
         const prisma = getPrismaInstance();
-        const { currentPage, pageSize, dateRange } = req.body
+        const { dateRange } = req.body
 
-
-        const skip = (currentPage - 1) * pageSize;
 
         const filters = {};
 
         if (dateRange && dateRange.startDate && dateRange.endDate) {
             // Convert endDate to include time component (end of day)
             const endDateWithTime = new Date(`${dateRange.endDate}T23:59:59`);
-            filters['addedDateTime'] = {
+            filters['applicationDate'] = {
                 gte: new Date(dateRange.startDate),
                 lte: endDateWithTime,
             };
         }
 
-
-        const uniqueLeads = await prisma.LeadPushLogs.findMany({
-            skip,
-            take: parseInt(pageSize),
-            distinct: ['leadId'],
+        const uniqueLeads = await prisma.offers.findMany({
             where: filters,
-            orderBy: { leadId: 'asc' },
+            distinct: ['partnerId'],
             include: {
                 partnerName: {
                     select: {
                         CampaignName: true
                     }
                 },
-                personName: true
             }
         });
 
 
-        // Filter out rows where personName is null
-        const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
+        for (const lead of uniqueLeads) {
+            const partnerId = lead.partnerId;
 
-        // // If the number of filtered rows is less than the desired pageSize,
-        // // fetch additional rows until the pageSize is met
-        // while (filteredLeads.length < pageSize) {
+            // Fetch counts for each applicationStatus for the current partnerId
+            const counts = await prisma.offers.groupBy({
+                by: ['applicationStatus'],
+                where: {
+                    partnerId: partnerId,
+                    applicationStatus: {
+                        in: ['success', 'failure', 'pending', 'reject']
+                    },
+                    applicationDate: filters['applicationDate'] // Applying date range filter
+                },
+                _count: true
+            });
 
-        //     const additionalLeads = await prisma.LeadPushLogs.findMany({
-        //         skip: skip + filteredLeads.length,
-        //         take: pageSize - filteredLeads.length,
-        //         distinct: ['leadId'],
-        //         where: filters,
-        //         orderBy: { leadId: 'asc' },
-        //         include: {
-        //             partnerName: {
-        //                 select: {
-        //                     CampaignName: true
-        //                 }
-        //             },
-        //             personName: true
-        //         }
-        //     });
+            // Initialize counts for each applicationStatus
+            lead.successCount = 0;
+            lead.failureCount = 0;
+            lead.pendingCount = 0;
+            lead.rejectCount = 0;
 
-        //     // Filter out rows where personName is null and concatenate them to the filteredLeads array
-        //     filteredLeads.push(...additionalLeads.filter(lead => lead.personName !== null));
+            // Update counts based on fetched counts
+            for (const count of counts) {
+                switch (count.applicationStatus) {
+                    case 'success':
+                        lead.successCount = count._count;
+                        break;
+                    case 'failure':
+                        lead.failureCount = count._count;
+                        break;
+                    case 'pending':
+                        lead.pendingCount = count._count;
+                        break;
+                    case 'reject':
+                        lead.rejectCount = count._count;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
-        //     // Break the loop if there are no more rows to fetch
-        //     if (additionalLeads.length === 0) {
-        //         break;
-        //     }
-        // }
+        // Send the response with uniqueLeads including counts for each applicationStatus
+        res.status(200).json({ logs: uniqueLeads });
 
-        // console.log(filteredLeads)
-
-
-        const count = Object.keys(filters).length
-            ? await prisma.$queryRaw`
-        SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
-        FROM lead_push_to_client
-        WHERE ${filters}
-      `
-            : await prisma.$queryRaw`
-        SELECT COUNT(DISTINCT leadId) AS distinctLeadCount
-        FROM lead_push_to_client
-      `;
-
-        const totalCount = count[0].distinctLeadCount || count[0].totalCount;
-
-        res.status(200).json({ logs: filteredLeads, count: parseInt(totalCount, 10) });
     } catch (error) {
         console.error('Error fetching whatsAppLogs:', error);
         res.status(500).json({ error: 'An error occurred' });
@@ -943,7 +974,7 @@ export async function getEmailLogs(req, res) {
         const filteredLeads = uniqueLeads.filter(lead => lead.personName !== null);
 
         // If the number of filtered rows is less than the desired pageSize,
-        // fetch additional rows until the pageSize is met
+        // // fetch additional rows until the pageSize is met
         while (filteredLeads.length < pageSize) {
             const additionalLeads = await prisma.EmailLogs.findMany({
                 skip: skip + filteredLeads.length,

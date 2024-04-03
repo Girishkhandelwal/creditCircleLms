@@ -28,4 +28,5 @@ router.post("/getLeadWiseLeadPushLogs", getLeadWiseLeadPushLogs)
 router.post("/getEmailLogs", getEmailLogs)
 router.post("/getLeadWiseEmailogs", getLeadWiseEmailogs)
 
+
 export default router;

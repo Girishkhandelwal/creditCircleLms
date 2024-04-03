@@ -3,7 +3,7 @@ import { Card, Select, Option } from "@material-tailwind/react";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import LeadsTable from '@/components/Leads/LeadsTable';
 import axios from 'axios';
-import { GET_EXPORT_LEADS_ROUTE, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRoutes';
+import { GET_EXPORT_LEADS_ROUTE } from '../../utils/ApiRoutes';
 import SelectFields from '../../components/Leads/SelectFields'
 import * as XLSX from 'xlsx';
 import Datepicker from "react-tailwindcss-datepicker";
@@ -20,6 +20,7 @@ export default function Leads() {
         startDate: null,
         endDate: null
     });
+    const [status, setStatus] = useState("All")
 
 
     const campaigns = useSelector((state) => state.data.campaigns);
@@ -34,12 +35,11 @@ export default function Leads() {
         if (selectedCampaign) {
             const campaign = campaigns.find((campaign) => campaign.id == selectedCampaign)
 
-
-            const fileds = selectedCampaign != "All" ? campaign.CampaignFields ? campaign.CampaignFields.split(',') : selectedFields : columnNames
+            // const fileds = selectedCampaign != "All" ? campaign.CampaignFields ? campaign.CampaignFields.split(',') : selectedFields : columnNames
 
             setSelectedLoanType(campaign.LoanTypeId)
 
-            setFields(fileds)
+            setFields(columnNames)
         }
 
     }, [selectedCampaign])
@@ -47,7 +47,7 @@ export default function Leads() {
 
     const exportToExcel = () => {
         // Use axios to get leads data for export
-        axios.post(GET_EXPORT_LEADS_ROUTE, { LoanType: selectedLoanType, selectedFields, UtmSource: selectedUtmSource, dateRange })
+        axios.post(GET_EXPORT_LEADS_ROUTE, { LoanType: selectedLoanType, selectedFields, UtmSource: selectedUtmSource, dateRange, applicationStatus: status })
             .then(response => {
                 const leadsData = response.data.leads;
 
@@ -75,10 +75,9 @@ export default function Leads() {
     return (
 
         <Card className="h-full w-full">
-
             {/* filter div*/}
             <div className="rounded-none mx-5">
-                
+
                 <div className='flex'>
                     <div className='w-1/2  border-[1px] rounded-md border-gray-500 mb-4 '>
 
@@ -143,6 +142,29 @@ export default function Leads() {
                             </Select>
                         )}
 
+                        <Select label="Select Status" value={status} onChange={(value)=> setStatus(value)} >
+
+                            <Option value='All'>
+                                All
+                            </Option>
+
+                            <Option value='success'>
+                                Success
+                            </Option>
+                            <Option value='failure'>
+                                Failure
+                            </Option>
+
+                            <Option value='pending'>
+                                Pending
+                            </Option>
+
+                            <Option value='reject'>
+                                Reject
+                            </Option>
+
+                        </Select>
+
                         <button
                             onClick={exportToExcel}
                             className="flex gap-2 items-center bg-blue-800 px-5 py-2 rounded-lg text-white"
@@ -155,7 +177,7 @@ export default function Leads() {
                 </div>
 
             </div>
-            <LeadsTable selectedFields={selectedFields} selectedLoanType={selectedLoanType} selectedUtmSource={selectedUtmSource} dateRange={dateRange} setTotalLeads={setTotalLeads} />
+            <LeadsTable selectedFields={selectedFields} selectedLoanType={selectedLoanType} selectedUtmSource={selectedUtmSource} dateRange={dateRange} setTotalLeads={setTotalLeads} status={status}/>
         </Card>
     )
 }
