@@ -227,6 +227,7 @@ model OfferList {
   offerTitle            String?
   offerDescription      String?
   isActive              Int      @default(1)
+  offerImage            String?
   @@map(name: "tblOfferList")
 }
 

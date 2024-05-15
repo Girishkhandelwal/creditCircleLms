@@ -6,9 +6,10 @@ import { setCampaignInfo, setOfferInfo, setOffers } from '../globalStates/dataSl
 import AddOffers from '@/components/Offers/AddOffers';
 import { EDIT_OFFER_ROUTE } from '@/utils/ApiRoutes';
 import axios from 'axios';
+import Image from 'next/image';
 
 export default function OfferList() {
-  const TABLE_HEAD = ["Id", "Category Name", "Offer Title", "Offer Description", "isActive", ""];
+  const TABLE_HEAD = ["Id", "Category Name", "Offer Title", "Offer Description", 'offerImage', "isActive", ""];
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const offers = useSelector((state) => state.data.offers);
@@ -23,6 +24,7 @@ export default function OfferList() {
     loanTypeId: null,
     offerTitle: null,
     offerDescription: null,
+    offerImage: null,
     isActive: 1
   });
 
@@ -82,6 +84,7 @@ export default function OfferList() {
 
   return (
     <Card className="h-full w-full">
+
       <CardHeader floated={false} shadow={false} className="rounded-none">
         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
           <div>
@@ -124,7 +127,7 @@ export default function OfferList() {
             </tr>
           </thead>
           <tbody>
-            {paginatedRows.map(({ id, loanTypeId, offerTitle, offerDescription, isActive }, index) => {
+            {paginatedRows.map(({ id, loanTypeId, offerTitle, offerDescription, isActive, offerImage }, index) => {
               const isLast = index === paginatedRows.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
               const categoryName = loanTypes.find((a) => a.id == loanTypeId).LoanType
@@ -155,6 +158,13 @@ export default function OfferList() {
                         {offerDescription}
                       </Typography>
                     </td>
+
+                    <td className={classes}>
+                    <Image src={`/offerImage/${offerImage}`} height={150} width={150} />
+                    </td>
+
+
+                 
 
                     <td className={classes}>
                       <Switch checked={isActive == 1 ? true : false} onClick={() => handelStatusChange(id)} label={isActive === 1 ? "Active" : "InActive"} />
@@ -269,6 +279,7 @@ export default function OfferList() {
           Next
         </Button>
       </CardFooter>
+
     </Card>
   );
 }

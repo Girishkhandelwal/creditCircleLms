@@ -1084,6 +1084,7 @@ export async function createOffer(req, res) {
                 offerTitle: formData.offerTitle,
                 offerDescription: formData.offerDescription,
                 isActive: formData.isActive,
+                offerImage: formData.offerImage
             },
         });
 
@@ -1119,6 +1120,7 @@ export async function editOffer(req, res) {
                 offerTitle: formData.offerTitle,
                 offerDescription: formData.offerDescription,
                 isActive: formData.isActive,
+                offerImage: formData.offerImage
             },
         });
 

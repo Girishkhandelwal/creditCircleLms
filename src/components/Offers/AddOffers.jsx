@@ -6,27 +6,29 @@ import axios from 'axios'
 import { useDispatch } from 'react-redux';
 import { setCampaignInfo, setCampaigns, setOfferInfo, setOfferList, setOffers } from '../../globalStates/dataSlice'
 import { useSelector } from 'react-redux'
+import Image from "next/image";
 
-export default function AddCampaign({ open, setOpen, loanTypes, updateFormData, formData, offers, setFormData }) {
+export default function AddOffer({ open, setOpen, loanTypes, updateFormData, formData, offers, setFormData }) {
 
     const dispatch = useDispatch()
 
 
     const handleOpen = () => {
         setOpen(!open);
-        dispatch(setCampaignInfo(null));
+        dispatch(setOfferInfo(null));
         setFormData({
             loanTypeId: null,
             offerTitle: null,
             offerDescription: null,
             isActive: 0,
+            offerImage: null
         }
         )
     }
 
     // const columns = columnNames.map(column => ({ value: column, label: column }));
     const offerInfo = useSelector((state) => state.data.offerInfo);
-    console.log(offerInfo)
+
 
     const handleInputChange = (field, value) => {
         updateFormData(field, value);
@@ -40,6 +42,7 @@ export default function AddCampaign({ open, setOpen, loanTypes, updateFormData, 
                 offerTitle: offerInfo.offerTitle,
                 offerDescription: offerInfo.offerDescription,
                 isActive: offerInfo.isActive,
+                offerImage: offerInfo.offerImage
             })
         }
 
@@ -67,7 +70,7 @@ export default function AddCampaign({ open, setOpen, loanTypes, updateFormData, 
 
                 if (response.data.status) {
                     const updatedOffer = response.data.offer;
-                   
+
                     const offerIndex = offers.findIndex(offer => offer.id === offerInfo.id);
 
 
@@ -87,6 +90,24 @@ export default function AddCampaign({ open, setOpen, loanTypes, updateFormData, 
             console.error("Offer error:", error);
         }
     }
+
+    const handleFileUpload = async (event) => {
+        const files = event.target?.files;
+        if (files?.length > 0) {
+            const data = new FormData();
+            for (const file of files) {
+                data.append("file", file);
+            }
+            const res = await axios.post("/api/upload", data);
+
+
+
+            handleInputChange('offerImage', res.data.fileName)
+
+        }
+    };
+
+    console.log(formData)
 
 
     return (
@@ -117,11 +138,32 @@ export default function AddCampaign({ open, setOpen, loanTypes, updateFormData, 
 
                     </div>
 
-                    <Switch
-                        label="Is Active"
-                        checked={formData.isActive === 1}
-                        onChange={() => handleInputChange("isActive", formData.isActive === 1 ? 0 : 1)}
-                    />
+                    <div className="mb-5 flex gap-5">
+                        <div className="w-[50%]">
+                            <label for="file-input" class="sr-only">Choose file</label>
+                            <input type="file" name="file-input" id="file-input" class="block mb-5 w-full border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400
+                        file:bg-gray-50 file:border-0
+                        file:me-4
+                        file:py-3 file:px-4
+                        dark:file:bg-neutral-700 dark:file:text-neutral-400"
+                                onChange={handleFileUpload}
+                            />
+
+                            <Switch
+                               
+                                label="Is Active"
+                                checked={formData.isActive === 1}
+                                onChange={() => handleInputChange("isActive", formData.isActive === 1 ? 0 : 1)}
+                            />
+
+                        </div>
+
+                        {formData.offerImage && <div>
+                            <Image src={`/offerImage/${formData.offerImage}`} height={200} width={200} />
+                        </div>}
+                    </div>
+
+
                 </DialogBody>
 
                 <DialogFooter>
