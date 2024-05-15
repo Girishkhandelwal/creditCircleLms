@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import SideBar from './SideBar'
 import Navbar from './Header'
 import { useSelector, useDispatch } from 'react-redux';
-import { setCampaigns, setLoanTypes, setColumnNames, setUtmSources} from '../../globalStates/dataSlice'
+import { setCampaigns, setLoanTypes, setColumnNames, setUtmSources, setOffer, setOffers } from '../../globalStates/dataSlice'
 import { useRouter } from 'next/router';
-import { GET_ALL_CAMPAIGNS_ROUTE, GET_ALL_LOAN_TYPES_ROUTE, GET_LEAD_COLUMN_ROUTE, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRoutes'
+import { GET_ALL_CAMPAIGNS_ROUTE, GET_ALL_LOAN_TYPES_ROUTE, GET_LEAD_COLUMN_ROUTE, GET_OFFERS, GET_OFFERS_LIST, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRoutes'
 import axios from 'axios'
 
 
@@ -12,14 +12,17 @@ import axios from 'axios'
 export default function Layout({ children }) {
     const router = useRouter()
     const dispatch = useDispatch()
-    
-    const isLogin = useSelector((state)=> state.data.isLogin)
-    const campaignInfo = useSelector((state)=> state.data.campaignInfo );
+
+    const isLogin = useSelector((state) => state.data.isLogin)
+    const campaignInfo = useSelector((state) => state.data.campaignInfo);
 
     useEffect(() => {
+
+
         if (!isLogin) {
             router.push('/Auth/login')
         } else {
+
 
             axios.get(GET_ALL_CAMPAIGNS_ROUTE)
                 .then(response => {
@@ -55,26 +58,38 @@ export default function Layout({ children }) {
                 .catch(error => {
                     console.error('Error fetching UtmSource values:', error);
                 });
-        }
 
+           
+            axios.get(GET_OFFERS)
+                .then(response => {
+                   
+                    dispatch(setOffers(response.data.offers));
+
+                })
+                .catch(error => {
+                    console.error('Error fetching offers:', error);
+                });
+
+           
+        }
 
     }, [isLogin])
 
 
-    useEffect(()=>{
-       
+    useEffect(() => {
+
         if (!campaignInfo) {
             axios.get(GET_ALL_CAMPAIGNS_ROUTE)
-            .then(response => {
-                dispatch(setCampaigns([{ id: "All", CampaignName: "All", LoanTypeId: "All" }, ...response.data.campaigns]));
+                .then(response => {
+                    dispatch(setCampaigns([{ id: "All", CampaignName: "All", LoanTypeId: "All" }, ...response.data.campaigns]));
 
-            })
-            .catch(error => {
-                console.error('Error fetching campaigns:', error);
-            });
+                })
+                .catch(error => {
+                    console.error('Error fetching campaigns:', error);
+                });
         }
 
-    },[campaignInfo])
+    }, [campaignInfo])
 
 
 

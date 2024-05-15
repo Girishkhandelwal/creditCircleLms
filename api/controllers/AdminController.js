@@ -1059,6 +1059,79 @@ export async function getLeadWiseEmailogs(req, res) {
     }
 }
 
+export async function getOfferList(req, res) {
+
+    try {
+        const prisma = getPrismaInstance();
+
+        const offers = await prisma.OfferList.findMany();
+
+        res.status(200).json({ offers });
+    } catch (error) {
+        console.error('Error fetching offer data:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+};
+
+export async function createOffer(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { formData } = req.body;
+
+        const newOffer = await prisma.OfferList.create({
+            data: {
+                loanTypeId: formData.loanTypeId,
+                offerTitle: formData.offerTitle,
+                offerDescription: formData.offerDescription,
+                isActive: formData.isActive,
+            },
+        });
+
+        res.status(201).json({ offer: newOffer, status: true });
+
+    } catch (error) {
+        console.error('Error creating campaign:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+export async function editOffer(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { formData, id } = req.body;
+
+        // Fetch existing campaign by id
+        const existingOffer = await prisma.OfferList.findUnique({
+            where: { id: id },
+        });
+
+        if (!existingOffer) {
+            return res.status(404).json({ error: 'offer not found' });
+        }
+
+       
+
+        // Update the existing campaign with the new data
+        const updatedOffer= await prisma.OfferList.update({
+            where: { id: existingOffer.id },
+            data: {
+                loanTypeId: formData.loanTypeId,
+                offerTitle: formData.offerTitle,
+                offerDescription: formData.offerDescription,
+                isActive: formData.isActive,
+            },
+        });
+
+        res.status(200).json({ offer: updatedOffer, status: true });
+
+    } catch (error) {
+        console.error('Error editing campaign:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+
+
 
 
 

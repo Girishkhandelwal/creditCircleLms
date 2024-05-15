@@ -45,5 +45,9 @@ export const GET_LEAD_PUSH_LOGS = `${MAIN_ROUTE}/getLeadPushLogs`
 export const GET_LEAD_WISE_LEAD_PUSH_LOGS = `${MAIN_ROUTE}/getLeadWiseLeadPushLogs`
 export const GET_EMAIL_LOGS = `${MAIN_ROUTE}/getEmailLogs`
 export const GET_LEAD_WISE_EMAIL_LOGS = `${MAIN_ROUTE}/getLeadWiseEmailogs`
+export const GET_OFFERS = `${MAIN_ROUTE}/getOfferList` 
+export const ADD_OFFERS_ROUTE = `${MAIN_ROUTE}/createOffer`
+export const EDIT_OFFER_ROUTE = `${MAIN_ROUTE}/editOffer`
+
 
 

@@ -221,5 +221,15 @@ model EmailLogs {
 
 }
 
+model OfferList {
+  id                    Int      @id @default(autoincrement())
+  loanTypeId            Int?
+  offerTitle            String?
+  offerDescription      String?
+  isActive              Int      @default(1)
+  @@map(name: "tblOfferList")
+}
+
+
 
 
