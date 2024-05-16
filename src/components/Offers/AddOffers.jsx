@@ -1,17 +1,16 @@
 import React, { useEffect } from "react";
 import { Button, Dialog, DialogHeader, DialogBody, DialogFooter, Input, Select as MaterialSelect, Option, Switch, Textarea } from "@material-tailwind/react";
-import ReactSelect from 'react-select';
-import { ADD_CAMPAIGN_ROUTE, ADD_OFFERS_ROUTE, EDIT_CAMPAIGN_ROUTE, EDIT_OFFER_ROUTE } from '../../utils/ApiRoutes'
+
+import {  ADD_OFFERS_ROUTE,  EDIT_OFFER_ROUTE, HOST, UPLOAD_IMAGE_ROUTE } from '../../utils/ApiRoutes'
 import axios from 'axios'
 import { useDispatch } from 'react-redux';
-import { setCampaignInfo, setCampaigns, setOfferInfo, setOfferList, setOffers } from '../../globalStates/dataSlice'
+import { setOfferInfo, setOffers } from '../../globalStates/dataSlice'
 import { useSelector } from 'react-redux'
 import Image from "next/image";
 
 export default function AddOffer({ open, setOpen, loanTypes, updateFormData, formData, offers, setFormData }) {
 
     const dispatch = useDispatch()
-
 
     const handleOpen = () => {
         setOpen(!open);
@@ -28,7 +27,6 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
 
     // const columns = columnNames.map(column => ({ value: column, label: column }));
     const offerInfo = useSelector((state) => state.data.offerInfo);
-
 
     const handleInputChange = (field, value) => {
         updateFormData(field, value);
@@ -47,7 +45,6 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
         }
 
     }, [offerInfo])
-
 
     async function handelSubmit() {
         try {
@@ -98,23 +95,21 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
             for (const file of files) {
                 data.append("file", file);
             }
-            const res = await axios.post("/api/upload", data);
-
-
+            const res = await axios.post(UPLOAD_IMAGE_ROUTE, data);
 
             handleInputChange('offerImage', res.data.fileName)
 
         }
     };
 
-    console.log(formData)
-
-
+    
     return (
         <>
+
             <Button onClick={handleOpen} variant="gradient">
                 {"Add Offer"}
             </Button>
+
             <Dialog open={open} size="lg" handler={handleOpen}>
                 <DialogHeader>{offerInfo ? "Edit Offer" : "Add Offer"}</DialogHeader>
                 <DialogBody>
@@ -150,7 +145,7 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                             />
 
                             <Switch
-                               
+
                                 label="Is Active"
                                 checked={formData.isActive === 1}
                                 onChange={() => handleInputChange("isActive", formData.isActive === 1 ? 0 : 1)}
@@ -159,7 +154,7 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                         </div>
 
                         {formData.offerImage && <div>
-                            <Image src={`/offerImage/${formData.offerImage}`} height={200} width={200} />
+                            <Image src={`${HOST}/offerImage/${formData.offerImage}`} height={200} width={200} />
                         </div>}
                     </div>
 
@@ -180,6 +175,8 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                     </Button>
                 </DialogFooter>
             </Dialog>
+
+
         </>
     );
 }

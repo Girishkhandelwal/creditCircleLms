@@ -4,7 +4,7 @@ import { Card, CardHeader, Typography, Button, CardBody, CardFooter, IconButton,
 import { useSelector, useDispatch } from 'react-redux';
 import { setCampaignInfo, setOfferInfo, setOffers } from '../globalStates/dataSlice';
 import AddOffers from '@/components/Offers/AddOffers';
-import { EDIT_OFFER_ROUTE } from '@/utils/ApiRoutes';
+import { EDIT_OFFER_ROUTE, HOST } from '@/utils/ApiRoutes';
 import axios from 'axios';
 import Image from 'next/image';
 
@@ -160,7 +160,7 @@ export default function OfferList() {
                     </td>
 
                     <td className={classes}>
-                    <Image src={`/offerImage/${offerImage}`} height={150} width={150} />
+                    <Image src={`${HOST}/offerImage/${offerImage}`} height={150} width={150} />
                     </td>
 
 

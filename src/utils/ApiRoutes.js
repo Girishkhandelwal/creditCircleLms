@@ -1,7 +1,6 @@
-let HOST;
+export let HOST;
 
 if (typeof window !== "undefined") {
-  console.log(window.location.origin);
 
   if (window.location.origin.includes("localhost")) {
     HOST =  "http://localhost:5001";
@@ -13,6 +12,8 @@ if (typeof window !== "undefined") {
 } else {
   HOST =  "http://localhost:5001";
 }
+
+
 
 export const MAIN_ROUTE = `${HOST}/api`
 
@@ -48,6 +49,7 @@ export const GET_LEAD_WISE_EMAIL_LOGS = `${MAIN_ROUTE}/getLeadWiseEmailogs`
 export const GET_OFFERS = `${MAIN_ROUTE}/getOfferList` 
 export const ADD_OFFERS_ROUTE = `${MAIN_ROUTE}/createOffer`
 export const EDIT_OFFER_ROUTE = `${MAIN_ROUTE}/editOffer`
+export const UPLOAD_IMAGE_ROUTE = `${MAIN_ROUTE}/uploadImage`
 
 
 
