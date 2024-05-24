@@ -228,6 +228,7 @@ model OfferList {
   offerDescription      String?
   isActive              Int      @default(1)
   offerImage            String?
+  redirectUrl           String?
   @@map(name: "tblOfferList")
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Button, Dialog, DialogHeader, DialogBody, DialogFooter, Input, Select as MaterialSelect, Option, Switch, Textarea } from "@material-tailwind/react";
 
-import {  ADD_OFFERS_ROUTE,  EDIT_OFFER_ROUTE, HOST, UPLOAD_IMAGE_ROUTE } from '../../utils/ApiRoutes'
+import { ADD_OFFERS_ROUTE, EDIT_OFFER_ROUTE, HOST, UPLOAD_IMAGE_ROUTE } from '../../utils/ApiRoutes'
 import axios from 'axios'
 import { useDispatch } from 'react-redux';
 import { setOfferInfo, setOffers } from '../../globalStates/dataSlice'
@@ -40,7 +40,8 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                 offerTitle: offerInfo.offerTitle,
                 offerDescription: offerInfo.offerDescription,
                 isActive: offerInfo.isActive,
-                offerImage: offerInfo.offerImage
+                offerImage: offerInfo.offerImage,
+                redirectUrl: offerInfo.redirectUrl
             })
         }
 
@@ -102,7 +103,7 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
         }
     };
 
-    
+
     return (
         <>
 
@@ -114,7 +115,7 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                 <DialogHeader>{offerInfo ? "Edit Offer" : "Add Offer"}</DialogHeader>
                 <DialogBody>
 
-                    <div className="flex gap-5">
+                    <div className="flex gap-5 mb-5">
                         <Input label="Offer Title" value={formData.offerTitle}
                             onChange={(e) => handleInputChange("offerTitle", e.target.value)} />
 
@@ -125,6 +126,11 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                                 </Option>
                             ))}
                         </MaterialSelect>}
+                    </div>
+
+                    <div>
+                        <Input label="Redirect Url" value={formData.redirectUrl}
+                            onChange={(e) => handleInputChange("redirectUrl", e.target.value)} />
                     </div>
 
                     <div className="my-5">

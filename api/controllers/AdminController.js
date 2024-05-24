@@ -1084,7 +1084,8 @@ export async function createOffer(req, res) {
                 offerTitle: formData.offerTitle,
                 offerDescription: formData.offerDescription,
                 isActive: formData.isActive,
-                offerImage: formData.offerImage
+                offerImage: formData.offerImage,
+                redirectUrl:formData.redirectUrl
             },
         });
 

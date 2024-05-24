@@ -9,7 +9,7 @@ import axios from 'axios';
 import Image from 'next/image';
 
 export default function OfferList() {
-  const TABLE_HEAD = ["Id", "Category Name", "Offer Title", "Offer Description", 'offerImage', "isActive", ""];
+  const TABLE_HEAD = ["Id", "Category Name", "Offer Title", "Offer Description", 'Redirect Url', 'offerImage', "isActive", ""];
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const offers = useSelector((state) => state.data.offers);
@@ -25,6 +25,7 @@ export default function OfferList() {
     offerTitle: null,
     offerDescription: null,
     offerImage: null,
+    redirectUrl: null,
     isActive: 1
   });
 
@@ -127,7 +128,7 @@ export default function OfferList() {
             </tr>
           </thead>
           <tbody>
-            {paginatedRows.map(({ id, loanTypeId, offerTitle, offerDescription, isActive, offerImage }, index) => {
+            {paginatedRows.map(({ id, loanTypeId, offerTitle, offerDescription, isActive, offerImage, redirectUrl }, index) => {
               const isLast = index === paginatedRows.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
               const categoryName = loanTypes.find((a) => a.id == loanTypeId).LoanType
@@ -156,6 +157,12 @@ export default function OfferList() {
                     <td className={classes}>
                       <Typography variant="small" color="blue-gray" className="font-normal">
                         {offerDescription}
+                      </Typography>
+                    </td>
+
+                    <td className={classes}>
+                      <Typography variant="small" color="blue-gray" className="font-normal">
+                        {redirectUrl}
                       </Typography>
                     </td>
 
