@@ -94,17 +94,16 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
         }
     }
 
-    const handleFileUpload = async (event) => {
+    const handleFileUpload  = async (event) => {
         const files = event.target?.files;
         if (files?.length > 0) {
             const data = new FormData();
             for (const file of files) {
                 data.append("file", file);
             }
+            data.append("type", "offer"); // Specify the type as 'offer'
             const res = await axios.post(UPLOAD_IMAGE_ROUTE, data);
-
-            handleInputChange('offerImage', res.data.fileName)
-
+            handleInputChange('offerImage', res.data.fileName);
         }
     };
 

@@ -15,6 +15,7 @@ app.use("/api/auth/", AuthRoutes);
 app.use("/api/", OtherRoutes);
 app.use("/api/uploadImage", UploadImageRoute);
 app.use('/offerImage', express.static("./offerImage/"));
+app.use('/campaignImage', express.static("./campaignImage/"));
 
 app.listen(process.env.PORT, () => {
     console.log(`server started on port http://localhost:${process.env.PORT}`);

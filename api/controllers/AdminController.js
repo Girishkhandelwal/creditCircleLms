@@ -548,7 +548,7 @@ export async function editCampaign(req, res) {
             updatedCampaignData = { ...dataWithoutId };
         }
 
-      
+
         // Update the existing campaign with the new data
         const updatedCampaign = await prisma.campaign.update({
             where: { id: existingCampaign.id },

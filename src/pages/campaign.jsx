@@ -4,11 +4,12 @@ import { Card, CardHeader, Typography, Button, CardBody, CardFooter, IconButton,
 import { useSelector, useDispatch } from 'react-redux';
 import { setCampaignInfo, setCampaigns } from '../globalStates/dataSlice';
 import AddCampaign from '@/components/Campaigns/AddCampaign';
-import { EDIT_CAMPAIGN_ROUTE } from '@/utils/ApiRoutes';
+import { EDIT_CAMPAIGN_ROUTE, HOST } from '@/utils/ApiRoutes';
 import axios from 'axios';
+import Image from 'next/image';
 
 export default function Campaign() {
-  const TABLE_HEAD = ["id", "CampaignName", "LoanType", "CampaignFields", "isActive", "isDashboard", ""];
+  const TABLE_HEAD = ["id", "CampaignName", "LoanType", "CampaignFields", "CampaignImage", "isActive", "isDashboard", ""];
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const campaigns = useSelector((state) => state.data.campaigns);
@@ -24,7 +25,8 @@ export default function Campaign() {
     CampaignFields: null,
     isActive: 0,
     LoanTypeId: null,
-    isDashboard: 0
+    isDashboard: 0,
+    CampaignImg: null
   });
 
   const updateFormData = (field, value) => {
@@ -78,6 +80,8 @@ export default function Campaign() {
     }
   }
 
+  console.log(campaigns)
+
 
   return (
     <Card className="h-full w-full">
@@ -123,10 +127,11 @@ export default function Campaign() {
             </tr>
           </thead>
           <tbody>
-            {paginatedRows.map(({ id, CampaignName, LoanType, CampaignFields, isActive, isDashboard }, index) => {
+            {paginatedRows.map(({ id, CampaignName, LoanType, CampaignFields, isActive, isDashboard, CampaignImg }, index) => {
               const isLast = index === paginatedRows.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-
+           
+    
               return (
                 id !== "All" && (
                   <tr key={index}>
@@ -152,6 +157,12 @@ export default function Campaign() {
                         {CampaignFields && CampaignFields.length > 20 ? `${CampaignFields.substring(0, 40)}...` : CampaignFields}
                       </Typography>
                     </td>
+
+                    <td className={classes}>
+                      <Image src={`${HOST}/campaignImage/${CampaignImg}`} height={150} width={150} />
+                    </td>
+
+
                     <td className={classes}>
                       <Typography variant="small" color="blue-gray" className="font-normal">
                         {isActive === 1 ? "Yes" : "No"}
