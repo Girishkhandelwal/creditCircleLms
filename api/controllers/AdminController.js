@@ -1,3 +1,4 @@
+import { sendNotificationsToAllUsers } from "../functions/OtherRoutes.js";
 import getPrismaInstance from "../utils/PrismaClient.js";
 import { subDays } from 'date-fns';
 
@@ -1085,9 +1086,11 @@ export async function createOffer(req, res) {
                 offerDescription: formData.offerDescription,
                 isActive: formData.isActive,
                 offerImage: formData.offerImage,
-                redirectUrl:formData.redirectUrl
+                redirectUrl: formData.redirectUrl
             },
         });
+
+        sendNotificationsToAllUsers(newOffer)
 
         res.status(201).json({ offer: newOffer, status: true });
 
@@ -1111,10 +1114,10 @@ export async function editOffer(req, res) {
             return res.status(404).json({ error: 'offer not found' });
         }
 
-       
+
 
         // Update the existing campaign with the new data
-        const updatedOffer= await prisma.OfferList.update({
+        const updatedOffer = await prisma.OfferList.update({
             where: { id: existingOffer.id },
             data: {
                 loanTypeId: formData.loanTypeId,

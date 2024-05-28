@@ -100,6 +100,7 @@ model Lead {
   UserDevice             String?  @map("UserDevice")
   UserOs                 String?  @map("UserOs")
   UniqueToken            String?  @map("Unique_Token")
+  token                  String?   @map("token")
   leadToPushRecord       LeadToPushRecord? 
   offers                 Offers[]
   whatsAppLogs           WhatsAppLogs[]
