@@ -532,7 +532,7 @@ export async function editCampaign(req, res) {
         }
 
         // Extract LoanTypeId from formData
-        const { LoanTypeId, ...updatedCampaignData } = formData;
+        let { LoanTypeId, ...updatedCampaignData } = formData;
 
         // Fetch LoanType from LoanTypeId
         const loanType = await prisma.loanType.findUnique({
@@ -543,6 +543,12 @@ export async function editCampaign(req, res) {
             return res.status(404).json({ error: 'LoanType not found' });
         }
 
+        if (updatedCampaignData.id) {
+            const { id, ...dataWithoutId } = updatedCampaignData;
+            updatedCampaignData = { ...dataWithoutId };
+        }
+
+      
         // Update the existing campaign with the new data
         const updatedCampaign = await prisma.campaign.update({
             where: { id: existingCampaign.id },
@@ -552,6 +558,7 @@ export async function editCampaign(req, res) {
                 loanType: { connect: { id: LoanTypeId } },
             },
         });
+
 
         res.status(200).json({ campaign: updatedCampaign, status: true });
 
@@ -1124,7 +1131,8 @@ export async function editOffer(req, res) {
                 offerTitle: formData.offerTitle,
                 offerDescription: formData.offerDescription,
                 isActive: formData.isActive,
-                offerImage: formData.offerImage
+                offerImage: formData.offerImage,
+                redirectUrl: formData.redirectUrl
             },
         });
 
@@ -1132,6 +1140,33 @@ export async function editOffer(req, res) {
 
     } catch (error) {
         console.error('Error editing campaign:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+export async function deleteOffer(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { id } = req.body;
+
+        // Fetch existing offer by id
+        const existingOffer = await prisma.OfferList.findUnique({
+            where: { id: id },
+        });
+
+        if (!existingOffer) {
+            return res.status(404).json({ error: 'Offer not found' });
+        }
+
+        // Delete the offer
+        await prisma.OfferList.delete({
+            where: { id: existingOffer.id },
+        });
+
+        res.status(200).json({ message: 'Offer deleted successfully', status: true });
+
+    } catch (error) {
+        console.error('Error deleting offer:', error);
         res.status(500).json({ error: 'An error occurred' });
     }
 }

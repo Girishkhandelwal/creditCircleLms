@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { PencilIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import { Card, CardHeader, Typography, Button, CardBody, CardFooter, IconButton, Tooltip, Input } from "@material-tailwind/react";
+import { Card, CardHeader, Typography, Button, CardBody, CardFooter, IconButton, Tooltip, Input, Switch } from "@material-tailwind/react";
 import { useSelector, useDispatch } from 'react-redux';
-import { setCampaignInfo } from '../globalStates/dataSlice';
+import { setCampaignInfo, setCampaigns } from '../globalStates/dataSlice';
 import AddCampaign from '@/components/Campaigns/AddCampaign';
+import { EDIT_CAMPAIGN_ROUTE } from '@/utils/ApiRoutes';
+import axios from 'axios';
 
 export default function Campaign() {
-  const TABLE_HEAD = ["id", "CampaignName", "LoanType", "CampaignFields", "isActive", ""];
+  const TABLE_HEAD = ["id", "CampaignName", "LoanType", "CampaignFields", "isActive", "isDashboard", ""];
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const campaigns = useSelector((state) => state.data.campaigns);
@@ -22,6 +24,7 @@ export default function Campaign() {
     CampaignFields: null,
     isActive: 0,
     LoanTypeId: null,
+    isDashboard: 0
   });
 
   const updateFormData = (field, value) => {
@@ -51,6 +54,30 @@ export default function Campaign() {
     campaign.CampaignName.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const paginatedRows = filteredCampaigns.slice(startIndex, endIndex);
+
+  async function handelIsDashboard(id) {
+
+    const campaign = campaigns.find((c) => c.id == id);
+                                                                          
+    const response = await axios.post(EDIT_CAMPAIGN_ROUTE, { formData: {...campaign, isDashboard: campaign.isDashboard == 1 ? 0 : 1}, id: id });
+
+    if (response.data.status) {                      
+      const campaign = response.data.campaign;
+
+      console.log(campaign)
+
+      const campiagnIndex = campaigns.findIndex(campaign => campaign.id === id);
+
+
+      if (campiagnIndex !== -1) {
+        const updatedCampaigns = [...campaigns];
+        updatedCampaigns[campiagnIndex] = campaign;
+        dispatch(setCampaigns(updatedCampaigns)); 
+      }
+      dispatch(setCampaignInfo(null));
+    }
+  }
+
 
   return (
     <Card className="h-full w-full">
@@ -96,7 +123,7 @@ export default function Campaign() {
             </tr>
           </thead>
           <tbody>
-            {paginatedRows.map(({ id, CampaignName, LoanType, CampaignFields, isActive }, index) => {
+            {paginatedRows.map(({ id, CampaignName, LoanType, CampaignFields, isActive, isDashboard }, index) => {
               const isLast = index === paginatedRows.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
@@ -130,6 +157,12 @@ export default function Campaign() {
                         {isActive === 1 ? "Yes" : "No"}
                       </Typography>
                     </td>
+
+                    <td className={classes}>
+                      <Switch checked={isDashboard == 1 ? true : false} onClick={() => handelIsDashboard(id)} label={isDashboard === 1 ? "Yes" : "No"} />
+
+                    </td>
+
                     <td className={classes}>
                       <Tooltip content="Edit Campaign">
                         <IconButton variant="text" onClick={() => handleEdit(id)}>

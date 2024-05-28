@@ -16,6 +16,7 @@ model Campaign {
   isActive        Int      @default(1)
   LoanTypeId      Int
   loanType        LoanType @relation(fields: [LoanTypeId], references: [id])
+  isDashboard     Int       @default(0)
   offers          Offers[]
   whatsAppLogs    WhatsAppLogs[]
   LeadPushLogs    LeadPushLogs[]

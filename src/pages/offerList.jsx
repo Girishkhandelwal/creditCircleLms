@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { PencilIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Card, CardHeader, Typography, Button, CardBody, CardFooter, IconButton, Tooltip, Input, Switch } from "@material-tailwind/react";
 import { useSelector, useDispatch } from 'react-redux';
 import { setCampaignInfo, setOfferInfo, setOffers } from '../globalStates/dataSlice';
 import AddOffers from '@/components/Offers/AddOffers';
-import { EDIT_OFFER_ROUTE, HOST } from '@/utils/ApiRoutes';
+import { DELETE_OFFER_ROUTE, EDIT_OFFER_ROUTE, HOST } from '@/utils/ApiRoutes';
 import axios from 'axios';
 import Image from 'next/image';
 
@@ -30,8 +30,11 @@ export default function OfferList() {
   });
 
   const updateFormData = (field, value) => {
+
     setFormData({ ...formData, [field]: value });
   };
+
+
 
   useEffect(() => {
     if (offers.length > 0) {
@@ -61,7 +64,7 @@ export default function OfferList() {
 
     const offer = offers.find((offer) => offer.id == id);
 
-    const response = await axios.post(EDIT_OFFER_ROUTE, { formData: {...offer, isActive: offer.isActive == 1 ? 0 : 1}, id: id });
+    const response = await axios.post(EDIT_OFFER_ROUTE, { formData: { ...offer, isActive: offer.isActive == 1 ? 0 : 1 }, id: id });
 
 
     if (response.data.status) {
@@ -83,6 +86,20 @@ export default function OfferList() {
   }
 
 
+  function handleDelete(id) {
+    axios.post(DELETE_OFFER_ROUTE, { id: id })
+      .then((res) => {
+        console.log(res.data.status);
+
+        if (res.data.status) {
+          const removedOfferId = id;
+          const updatedOffers = offers.filter(offer => offer.id !== removedOfferId);
+          dispatch(setOffers(updatedOffers));
+        }
+
+      })
+      .catch((error) => console.error(error));
+  }
   return (
     <Card className="h-full w-full">
 
@@ -167,23 +184,31 @@ export default function OfferList() {
                     </td>
 
                     <td className={classes}>
-                    <Image src={`${HOST}/offerImage/${offerImage}`} height={150} width={150} />
+                      <Image src={`${HOST}/offerImage/${offerImage}`} height={150} width={150} />
                     </td>
 
 
-                 
+
 
                     <td className={classes}>
                       <Switch checked={isActive == 1 ? true : false} onClick={() => handelStatusChange(id)} label={isActive === 1 ? "Active" : "InActive"} />
 
                     </td>
 
-                    <td className={classes}>
-                      <Tooltip content="Edit Campaign">
+                    <td className={`${classes}`}>
+                      <Tooltip content="Edit Offer">
                         <IconButton variant="text" onClick={() => handleEdit(id)}>
                           <PencilIcon className="h-4 w-4" />
                         </IconButton>
                       </Tooltip>
+
+                      <Tooltip content="Delete Offer">
+                        <IconButton variant="text" onClick={() => handleDelete(id)}>
+                          <TrashIcon className="h-4 w-4" />
+                        </IconButton>
+                      </Tooltip>
+
+
                     </td>
                   </tr>
                 )

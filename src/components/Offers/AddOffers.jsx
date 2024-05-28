@@ -20,7 +20,8 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
             offerTitle: null,
             offerDescription: null,
             isActive: 0,
-            offerImage: null
+            offerImage: null,
+            redirectUrl: null
         }
         )
     }
@@ -33,6 +34,8 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
     };
 
     useEffect(() => {
+
+
 
         if (offerInfo) {
             setFormData({
@@ -47,13 +50,14 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
 
     }, [offerInfo])
 
+
     async function handelSubmit() {
         try {
             if (!offerInfo) {
 
                 const response = await axios.post(ADD_OFFERS_ROUTE, { formData });
 
-                console.log(response.data.status)
+
 
                 if (response.data.status) {
 
@@ -64,6 +68,7 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                 }
 
             } else {
+
                 const response = await axios.post(EDIT_OFFER_ROUTE, { formData, id: offerInfo.id });
 
                 if (response.data.status) {
