@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import SideBar from './SideBar'
 import Navbar from './Header'
 import { useSelector, useDispatch } from 'react-redux';
-import { setCampaigns, setLoanTypes, setColumnNames, setUtmSources, setOffer, setOffers } from '../../globalStates/dataSlice'
+import { setCampaigns, setLoanTypes, setColumnNames, setUtmSources, setOffer, setOffers, setOffersBanner } from '../../globalStates/dataSlice'
 import { useRouter } from 'next/router';
-import { GET_ALL_CAMPAIGNS_ROUTE, GET_ALL_LOAN_TYPES_ROUTE, GET_LEAD_COLUMN_ROUTE, GET_OFFERS, GET_OFFERS_LIST, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRoutes'
+import { GET_ALL_CAMPAIGNS_ROUTE, GET_ALL_LOAN_TYPES_ROUTE, GET_LEAD_COLUMN_ROUTE, GET_OFFERS, GET_OFFERS_BANNER_ROUTE, GET_OFFERS_LIST, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRoutes'
 import axios from 'axios'
 
 
@@ -18,11 +18,9 @@ export default function Layout({ children }) {
 
     useEffect(() => {
 
-
         if (!isLogin) {
             router.push('/Auth/login')
         } else {
-
 
             axios.get(GET_ALL_CAMPAIGNS_ROUTE)
                 .then(response => {
@@ -59,10 +57,10 @@ export default function Layout({ children }) {
                     console.error('Error fetching UtmSource values:', error);
                 });
 
-           
+
             axios.get(GET_OFFERS)
                 .then(response => {
-                   
+
                     dispatch(setOffers(response.data.offers));
 
                 })
@@ -70,7 +68,16 @@ export default function Layout({ children }) {
                     console.error('Error fetching offers:', error);
                 });
 
-           
+            axios.get(GET_OFFERS_BANNER_ROUTE)
+                .then(response => {
+                     console.log(response.data.offersBanner)
+                    dispatch(setOffersBanner(response.data.offersBanner));
+
+                })
+                .catch(error => {
+                    console.error('Error fetching offers:', error);
+                });
+
         }
 
     }, [isLogin])

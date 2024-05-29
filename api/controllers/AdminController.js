@@ -1172,6 +1172,81 @@ export async function deleteOffer(req, res) {
 }
 
 
+export async function offersBanner(req, res) {
+
+    try {
+        const prisma = getPrismaInstance();
+
+        const offersBanner = await prisma.OffersBanner.findMany();
+
+        res.status(200).json({ offersBanner });
+    } catch (error) {
+        console.error('Error fetching offer data:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+
+};
+
+
+export async function createOffersBanner(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { formData } = req.body;
+
+        const newOfferBanner = await prisma.OffersBanner.create({
+            data: {
+                altText: formData.altText,
+                redirectUrl: formData.redirectUrl,
+                isActive: formData.isActive,
+                bannerImage: formData.bannerImage
+            },
+        });
+
+        res.status(201).json({ offerBanner: newOfferBanner, status: true });
+
+    } catch (error) {
+        console.error('Error creating banner:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+export async function editOffersBanner(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { formData, id } = req.body;
+
+        // Fetch existing campaign by id
+        const existingOfferbanner = await prisma.OffersBanner.findUnique({
+            where: { id: id },
+        });
+
+        if (!existingOfferbanner) {
+            return res.status(404).json({ error: 'banner not found' });
+        }
+
+        // Update the existing banner with the new data
+        const updatedBanner = await prisma.OffersBanner.update({
+            where: { id: existingOfferbanner.id },
+            data: {
+                altText: formData.altText,
+                redirectUrl: formData.redirectUrl,
+                isActive: formData.isActive,
+                bannerImage: formData.bannerImage,
+                isDashboard: formData.isDashboard
+            },
+        });
+
+        
+
+        res.status(200).json({ offerBanner: updatedBanner, status: true });
+
+    } catch (error) {
+        console.error('Error editing banner:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+
 
 
 

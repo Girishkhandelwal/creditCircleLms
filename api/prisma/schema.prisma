@@ -235,5 +235,16 @@ model OfferList {
 }
 
 
+model OffersBanner {
+  id         Int        @id @default(autoincrement())
+  altText   String?
+  bannerImage  String?
+  isActive        Int      @default(1)
+  redirectUrl      String?
+  isDashboard   Int?
+  @@map(name: "tblOffersBanner")
+}
+
+
 
 

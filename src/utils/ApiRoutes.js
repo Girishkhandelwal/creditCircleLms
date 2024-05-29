@@ -51,6 +51,9 @@ export const ADD_OFFERS_ROUTE = `${MAIN_ROUTE}/createOffer`
 export const EDIT_OFFER_ROUTE = `${MAIN_ROUTE}/editOffer`
 export const UPLOAD_IMAGE_ROUTE = `${MAIN_ROUTE}/uploadImage`
 export const DELETE_OFFER_ROUTE = `${MAIN_ROUTE}/deleteOffer`
+export const GET_OFFERS_BANNER_ROUTE = `${MAIN_ROUTE}/offersBanner`
+export const ADD_OFFERS_BANNER_ROUTE = `${MAIN_ROUTE}/createOffersBanner`
+export const EDIT_OFFERS_BANNER_ROUTE = `${MAIN_ROUTE}/editOffersBanner`
 
 
 
