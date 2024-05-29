@@ -152,7 +152,7 @@ export default function Campaign() {
 
 
                                         <td className={classes}>
-                                            <Image src={`${HOST}/bannerImage/${bannerImage}`} height={150} width={150} />
+                                            <Image src={`${HOST}/assets/bannerImage/${bannerImage}`} height={150} width={150} />
                                         </td>
 
 

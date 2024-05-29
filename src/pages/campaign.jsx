@@ -159,7 +159,7 @@ export default function Campaign() {
                     </td>
 
                     <td className={classes}>
-                      <Image src={`${HOST}/campaignImage/${CampaignImg}`} height={150} width={150} />
+                      <Image src={`${HOST}/assets/campaignImage/${CampaignImg}`} height={150} width={150} />
                     </td>
 
 

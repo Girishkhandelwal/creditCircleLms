@@ -164,7 +164,7 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                         </div>
 
                         {formData.offerImage && <div>
-                            <Image src={`${HOST}/offerImage/${formData.offerImage}`} height={200} width={200} />
+                            <Image src={`${HOST}/assets/offerImage/${formData.offerImage}`} height={200} width={200} />
                         </div>}
                     </div>
 

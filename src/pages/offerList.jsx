@@ -184,7 +184,7 @@ export default function OfferList() {
                     </td>
 
                     <td className={classes}>
-                      <Image src={`${HOST}/offerImage/${offerImage}`} height={150} width={150} />
+                      <Image src={`${HOST}/assets/offerImage/${offerImage}`} height={150} width={150} />
                     </td>
 
 

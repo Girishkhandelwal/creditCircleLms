@@ -14,9 +14,9 @@ app.use(express.json());
 app.use("/api/auth/", AuthRoutes);
 app.use("/api/", OtherRoutes);
 app.use("/api/uploadImage", UploadImageRoute);
-app.use('/offerImage', express.static("./offerImage/"));
-app.use('/campaignImage', express.static("./campaignImage/"));
-app.use('/bannerImage', express.static("./bannerImage/"));
+app.use('/assets/offerImage/', express.static("./assets/offerImage/"));
+app.use('/assets/campaignImage/', express.static("./assets/campaignImage/"));
+app.use('/assets/bannerImage/', express.static("./assets/bannerImage/"));
 
 app.listen(process.env.PORT, () => {
     console.log(`server started on port http://localhost:${process.env.PORT}`);

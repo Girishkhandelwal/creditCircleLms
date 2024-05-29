@@ -153,7 +153,7 @@ export default function AddCampaign({ open, setOpen, loanTypes, columnNames, upd
                         </div>
 
                         {formData.CampaignImg && <div>
-                            <Image src={`${HOST}/campaignImage/${formData.CampaignImg}`} height={200} width={200} />
+                            <Image src={`${HOST}/assets/campaignImage/${formData.CampaignImg}`} height={200} width={200} />
                         </div>}
                     </div>
 

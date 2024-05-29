@@ -1121,8 +1121,6 @@ export async function editOffer(req, res) {
             return res.status(404).json({ error: 'offer not found' });
         }
 
-
-
         // Update the existing campaign with the new data
         const updatedOffer = await prisma.OfferList.update({
             where: { id: existingOffer.id },

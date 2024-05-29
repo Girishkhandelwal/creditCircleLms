@@ -134,7 +134,7 @@ export default function AddOffersBanner({ open, setOpen, updateFormData, formDat
                         </div>
 
                         {formData.bannerImage && <div>
-                            <Image src={`${HOST}/bannerImage/${formData.bannerImage}`} height={200} width={200} />
+                            <Image src={`${HOST}/assets/bannerImage/${formData.bannerImage}`} height={200} width={200} />
                         </div>}
                     </div>
 
