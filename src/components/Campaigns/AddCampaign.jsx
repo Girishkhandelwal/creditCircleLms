@@ -92,7 +92,7 @@ export default function AddCampaign({ open, setOpen, loanTypes, columnNames, upd
             <Button onClick={handleOpen} variant="gradient">
                 {"Add Campaign"}   
             </Button>
-            <Dialog open={open} size="lg" handler={handleOpen}>
+             <Dialog open={open} size="lg" handler={handleOpen}>
                 <DialogHeader>{campaignInfo ? "Edit Campaign" : "Add Campaign"}</DialogHeader>
                 <DialogBody>
 

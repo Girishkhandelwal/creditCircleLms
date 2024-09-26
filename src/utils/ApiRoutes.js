@@ -55,5 +55,10 @@ export const GET_OFFERS_BANNER_ROUTE = `${MAIN_ROUTE}/offersBanner`
 export const ADD_OFFERS_BANNER_ROUTE = `${MAIN_ROUTE}/createOffersBanner`
 export const EDIT_OFFERS_BANNER_ROUTE = `${MAIN_ROUTE}/editOffersBanner`
 
+export const GET_CATEGORIES = `${MAIN_ROUTE}/getCategories` 
+export const ADD_CATEGORY_ROUTE = `${MAIN_ROUTE}/createCategory`
+export const EDIT_CATEGORY_ROUTE = `${MAIN_ROUTE}/editCategory`
+export const DELETE_CATEGORY_ROUTE = `${MAIN_ROUTE}/deleteCategory`
+
 
 

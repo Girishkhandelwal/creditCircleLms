@@ -1088,12 +1088,13 @@ export async function createOffer(req, res) {
 
         const newOffer = await prisma.OfferList.create({
             data: {
-                loanTypeId: formData.loanTypeId,
+                categoryId: formData.categoryId,
                 offerTitle: formData.offerTitle,
                 offerDescription: formData.offerDescription,
                 isActive: formData.isActive,
                 offerImage: formData.offerImage,
-                redirectUrl: formData.redirectUrl
+                redirectUrl: formData.redirectUrl,
+                buttonName: formData.buttonName
             },
         });
 
@@ -1125,12 +1126,13 @@ export async function editOffer(req, res) {
         const updatedOffer = await prisma.OfferList.update({
             where: { id: existingOffer.id },
             data: {
-                loanTypeId: formData.loanTypeId,
+                categoryId: formData.categoryId,
                 offerTitle: formData.offerTitle,
                 offerDescription: formData.offerDescription,
                 isActive: formData.isActive,
                 offerImage: formData.offerImage,
-                redirectUrl: formData.redirectUrl
+                redirectUrl: formData.redirectUrl,
+                buttonName: formData.buttonName
             },
         });
 
@@ -1169,7 +1171,6 @@ export async function deleteOffer(req, res) {
     }
 }
 
-
 export async function offersBanner(req, res) {
 
     try {
@@ -1184,7 +1185,6 @@ export async function offersBanner(req, res) {
     }
 
 };
-
 
 export async function createOffersBanner(req, res) {
     try {
@@ -1235,7 +1235,6 @@ export async function editOffersBanner(req, res) {
         });
 
         
-
         res.status(200).json({ offerBanner: updatedBanner, status: true });
 
     } catch (error) {
@@ -1244,13 +1243,94 @@ export async function editOffersBanner(req, res) {
     }
 }
 
+export async function getCategories(req, res) {
 
+    try {
+        const prisma = getPrismaInstance();
 
+        const categories = await prisma.Category.findMany();
 
+        res.status(200).json({ categories });
+    } catch (error) {
+        console.error('Error fetching category data:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+};
 
+export async function createCategory(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { formData } = req.body;
 
+        const newCat = await prisma.Category.create({
+            data: {
+                categoryName: formData.categoryName,
+           
+            },
+        });
 
+        res.status(201).json({ categories: newCat, status: true });
 
+    } catch (error) {
+        console.error('Error creating category:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
 
+export async function editCategory(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { formData, id } = req.body;
 
+        // Fetch existing campaign by id
+        const existing = await prisma.Category.findUnique({
+            where: { id: id },
+        });
 
+        if (!existing) {
+            return res.status(404).json({ error: 'category not found' });
+        }
+
+        // Update the existing campaign with the new data
+        const update = await prisma.Category.update({
+            where: { id: existing.id },
+            data: {
+                categoryName: formData.categoryName,
+              
+            },
+        });
+
+        res.status(200).json({ categories: update, status: true });
+
+    } catch (error) {
+        console.error('Error Category :', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}
+
+export async function deleteCategory(req, res) {
+    try {
+        const prisma = getPrismaInstance();
+        const { id } = req.body;
+
+        // Fetch existing offer by id
+        const existing = await prisma.Category.findUnique({
+            where: { id: id },
+        });
+
+        if (!existing) {
+            return res.status(404).json({ error: 'category not found' });
+        }
+
+        // Delete the offer
+        await prisma.Category.delete({
+            where: { id: existing.id },
+        });
+
+        res.status(200).json({ message: 'category deleted successfully', status: true });
+
+    } catch (error) {
+        console.error('Error category offer:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+}

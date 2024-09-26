@@ -5,7 +5,7 @@ import dataReducer from './dataSlice';
 import CryptoJS from 'crypto-js';
 
 const encryptConfig = {
-  secretKey: '1234567890', 
+  secretKey: '1234567890',
 };
 
 const encryptTransform = createTransform(

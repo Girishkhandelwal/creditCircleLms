@@ -2,12 +2,10 @@ import React, { useEffect } from 'react'
 import SideBar from './SideBar'
 import Navbar from './Header'
 import { useSelector, useDispatch } from 'react-redux';
-import { setCampaigns, setLoanTypes, setColumnNames, setUtmSources, setOffer, setOffers, setOffersBanner } from '../../globalStates/dataSlice'
+import { setCampaigns, setLoanTypes, setColumnNames, setUtmSources, setOffer, setOffers, setOffersBanner, setCategories } from '../../globalStates/dataSlice'
 import { useRouter } from 'next/router';
-import { GET_ALL_CAMPAIGNS_ROUTE, GET_ALL_LOAN_TYPES_ROUTE, GET_LEAD_COLUMN_ROUTE, GET_OFFERS, GET_OFFERS_BANNER_ROUTE, GET_OFFERS_LIST, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRoutes'
+import { GET_ALL_CAMPAIGNS_ROUTE, GET_ALL_LOAN_TYPES_ROUTE, GET_CATEGORIES, GET_LEAD_COLUMN_ROUTE, GET_OFFERS, GET_OFFERS_BANNER_ROUTE, GET_OFFERS_LIST, GET_UTM_SOURCE_ROUTE } from '../../utils/ApiRoutes'
 import axios from 'axios'
-
-
 
 export default function Layout({ children }) {
     const router = useRouter()
@@ -70,7 +68,7 @@ export default function Layout({ children }) {
 
             axios.get(GET_OFFERS_BANNER_ROUTE)
                 .then(response => {
-                     console.log(response.data.offersBanner)
+                  
                     dispatch(setOffersBanner(response.data.offersBanner));
 
                 })
@@ -78,10 +76,19 @@ export default function Layout({ children }) {
                     console.error('Error fetching offers:', error);
                 });
 
+            axios.get(GET_CATEGORIES)
+                .then(response => {
+                  
+                    dispatch(setCategories(response.data.categories));
+
+                })
+                .catch(error => {
+                    console.error('Error fetching categories:', error);
+                });
+
         }
 
     }, [isLogin])
-
 
     useEffect(() => {
 
@@ -98,9 +105,8 @@ export default function Layout({ children }) {
 
     }, [campaignInfo])
 
-
-
     return (
+
         <>
             {isLogin ? <div className="flex max-h-screen overflow-hidden">
 
@@ -110,8 +116,10 @@ export default function Layout({ children }) {
                     <Navbar />
                     <div className="px-4 md:px-4"> {children}</div>
                 </div>
+
             </div> : <div className="px-4 md:px-4"> {children}</div>}
 
         </>
+
     )
 }

@@ -9,23 +9,23 @@ import axios from 'axios';
 import Image from 'next/image';
 
 export default function OfferList() {
-  const TABLE_HEAD = ["Id", "Category Name", "Offer Title", "Offer Description", 'Redirect Url', 'offerImage', "isActive", ""];
+  const TABLE_HEAD = ["Id", "Category Name", "Offer Title", "Offer Description", "Button Name", 'Redirect Url', 'offerImage', "isActive", ""];
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const offers = useSelector((state) => state.data.offers);
-  const loanTypes = useSelector((state) => state.data.loanTypes);
+  const categories = useSelector((state) => state.data.categories);
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(null);
   const pageSize = 10;
 
-
   const [formData, setFormData] = useState({
-    loanTypeId: null,
+    categoryId: null,
     offerTitle: null,
     offerDescription: null,
     offerImage: null,
     redirectUrl: null,
+    buttonName: null,
     isActive: 1
   });
 
@@ -33,7 +33,6 @@ export default function OfferList() {
 
     setFormData({ ...formData, [field]: value });
   };
-
 
 
   useEffect(() => {
@@ -85,7 +84,6 @@ export default function OfferList() {
 
   }
 
-
   function handleDelete(id) {
     axios.post(DELETE_OFFER_ROUTE, { id: id })
       .then((res) => {
@@ -119,7 +117,7 @@ export default function OfferList() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <AddOffers open={open} setOpen={setOpen} updateFormData={updateFormData} loanTypes={loanTypes} formData={formData} offers={offers} setFormData={setFormData} />
+            <AddOffers open={open} setOpen={setOpen} updateFormData={updateFormData} categories={categories} formData={formData} offers={offers} setFormData={setFormData} />
           </div>
         </div>
       </CardHeader>
@@ -145,11 +143,11 @@ export default function OfferList() {
             </tr>
           </thead>
           <tbody>
-            {paginatedRows.map(({ id, loanTypeId, offerTitle, offerDescription, isActive, offerImage, redirectUrl }, index) => {
+            {paginatedRows.map(({ id, categoryId, offerTitle, offerDescription, isActive, offerImage, redirectUrl, buttonName }, index) => {
               const isLast = index === paginatedRows.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-              const categoryName = loanTypes.find((a) => a.id == loanTypeId).LoanType
-
+              const categoryName = categories.find((a) => a.id == categoryId)?.categoryName
+              
               return (
                 id !== "All" && (
                   <tr key={index}>
@@ -179,6 +177,12 @@ export default function OfferList() {
 
                     <td className={classes}>
                       <Typography variant="small" color="blue-gray" className="font-normal">
+                        {buttonName || "Click here"}
+                      </Typography>
+                    </td>
+
+                    <td className={classes}>
+                      <Typography variant="small" color="blue-gray" className="font-normal">
                         {redirectUrl}
                       </Typography>
                     </td>
@@ -186,8 +190,6 @@ export default function OfferList() {
                     <td className={classes}>
                       <Image src={`${HOST}/assets/offerImage/${offerImage}`} height={150} width={150} />
                     </td>
-
-
 
 
                     <td className={classes}>

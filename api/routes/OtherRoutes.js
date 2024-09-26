@@ -3,7 +3,7 @@ import { Router } from "express";
 import { getAllCampaigns, getAllLoanTypes, getLeads, getLeadsDaily,  getLeadsWeekly, getLeadsMonthly,  getLeadsYearly, getTotalLeadsByLoanType,
  exportLeads, getUtmSources, getLeadColumnNames, createCampaign, editCampaign, getUniqueOffersLeads, getStatusWiseOffersList, getWhatsAppLogs,
   getLeadWiseWhatsAppLogs, getLeadPushLogs, getLeadWiseLeadPushLogs, getEmailLogs, getLeadWiseEmailogs, getOfferList, createOffer, editOffer, deleteOffer,
-   offersBanner, createOffersBanner, editOffersBanner } from "../controllers/AdminController.js";
+   offersBanner, createOffersBanner, editOffersBanner,   getCategories ,createCategory, editCategory, deleteCategory} from "../controllers/AdminController.js";
 
 const router = Router();
 
@@ -35,6 +35,10 @@ router.post("/deleteOffer", deleteOffer)
 router.get("/offersBanner", offersBanner)
 router.post("/createOffersBanner", createOffersBanner)
 router.post("/editOffersBanner", editOffersBanner)
+router.get("/getCategories", getCategories)
+router.post("/createCategory", createCategory)
+router.post("/editCategory", editCategory)
+router.post("/deleteCategory", deleteCategory)
 
 
 export default router;

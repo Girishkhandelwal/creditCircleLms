@@ -17,7 +17,10 @@ const dataSlice = createSlice({
     offers: [],
     offerInfo: null,
     offersBanner: [],
-    offersBannerInfo: null
+    offersBannerInfo: null,
+    categories: [],
+    categoryInfo: null
+    
   },
 
   reducers: {
@@ -72,10 +75,19 @@ const dataSlice = createSlice({
     setOffersBannerInfo: (state, action) => {
       state.offersBannerInfo = action.payload;
     },
+
+    setCategories: (state, action) => {
+      state.categories = action.payload;
+    },
+
+    setCategoryInfo: (state, action) => {
+      state.categoryInfo = action.payload;
+    },
   },
 });
 
-export const { setLeads, setCurrentPage, setIsLogin, setCampaigns, setLoanTypes, setColumnNames, setUtmSources, setCampaignInfo, setOfferList, setOffers, setOfferInfo, setOffersBanner, setOffersBannerInfo } = dataSlice.actions;
+export const { setLeads, setCurrentPage, setIsLogin, setCampaigns, setLoanTypes, setColumnNames, setUtmSources, 
+  setCampaignInfo, setOfferList, setOffers, setOfferInfo, setOffersBanner, setOffersBannerInfo, setCategories, setCategoryInfo } = dataSlice.actions;
 
 
 export default dataSlice.reducer;

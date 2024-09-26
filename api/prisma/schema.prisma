@@ -225,12 +225,13 @@ model EmailLogs {
 
 model OfferList {
   id                    Int      @id @default(autoincrement())
-  loanTypeId            Int?
+  categoryId            Int?
   offerTitle            String?
   offerDescription      String?
   isActive              Int      @default(1)
   offerImage            String?
   redirectUrl           String?
+  buttonName            String?
   @@map(name: "tblOfferList")
 }
 
@@ -245,6 +246,13 @@ model OffersBanner {
   @@map(name: "tblOffersBanner")
 }
 
+
+model Category {
+  id             Int        @id @default(autoincrement())
+  categoryName   String?
+  
+  @@map(name: "tblcategory")
+}
 
 
 

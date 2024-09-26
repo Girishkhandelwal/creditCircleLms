@@ -8,7 +8,7 @@ import { setOfferInfo, setOffers } from '../../globalStates/dataSlice'
 import { useSelector } from 'react-redux'
 import Image from "next/image";
 
-export default function AddOffer({ open, setOpen, loanTypes, updateFormData, formData, offers, setFormData }) {
+export default function AddOffer({ open, setOpen, categories, updateFormData, formData, offers, setFormData }) {
 
     const dispatch = useDispatch()
 
@@ -16,14 +16,15 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
         setOpen(!open);
         dispatch(setOfferInfo(null));
         setFormData({
-            loanTypeId: null,
+            categoryId: null,
             offerTitle: null,
             offerDescription: null,
             isActive: 0,
             offerImage: null,
-            redirectUrl: null
-        }
-        )
+            redirectUrl: null,
+            buttonName: null
+        }   
+       )
     }
 
     // const columns = columnNames.map(column => ({ value: column, label: column }));
@@ -35,21 +36,19 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
 
     useEffect(() => {
 
-
-
         if (offerInfo) {
             setFormData({
-                loanTypeId: offerInfo.loanTypeId,
+                categoryId: offerInfo.categoryId,
                 offerTitle: offerInfo.offerTitle,
                 offerDescription: offerInfo.offerDescription,
                 isActive: offerInfo.isActive,
                 offerImage: offerInfo.offerImage,
-                redirectUrl: offerInfo.redirectUrl
+                redirectUrl: offerInfo.redirectUrl,
+                buttonName: offerInfo.buttonName
             })
         }
 
     }, [offerInfo])
-
 
     async function handelSubmit() {
         try {
@@ -57,14 +56,10 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
 
                 const response = await axios.post(ADD_OFFERS_ROUTE, { formData });
 
-
-
                 if (response.data.status) {
-
 
                     dispatch(setOffers([...offers, response.data.offer]));
                     setOpen(!open)
-
                 }
 
             } else {
@@ -94,7 +89,7 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
         }
     }
 
-    const handleFileUpload  = async (event) => {
+    const handleFileUpload = async (event) => {
         const files = event.target?.files;
         if (files?.length > 0) {
             const data = new FormData();
@@ -106,6 +101,17 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
             handleInputChange('offerImage', res.data.fileName);
         }
     };
+
+    const buttons = ['Apply Now',
+        'Book Now',
+        'Download App',
+        'Get Offer',
+        'Get Quote',
+        'Sign Up',
+        'Learn More',
+        'Shop Now',
+        'Know More'
+    ]
 
 
     return (
@@ -123,10 +129,10 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                         <Input label="Offer Title" value={formData.offerTitle}
                             onChange={(e) => handleInputChange("offerTitle", e.target.value)} />
 
-                        {loanTypes && loanTypes.length > 0 && <MaterialSelect label="Select LoanType" value={formData.loanTypeId} onChange={(value) => handleInputChange("loanTypeId", value)}>
-                            {loanTypes.map(loanType => (
-                                <Option key={loanType.id} value={loanType.id}>
-                                    {loanType.LoanType}
+                        {categories && categories.length > 0 && <MaterialSelect label="Select LoanType" value={formData.categoryId} onChange={(value) => handleInputChange("categoryId", value)}>
+                            {categories.map(c => (
+                                <Option key={c.id} value={c.id}>
+                                    {c.categoryName}
                                 </Option>
                             ))}
                         </MaterialSelect>}
@@ -168,6 +174,18 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                         </div>}
                     </div>
 
+                    <div className="flex gap-5 mb-5">
+
+                        {buttons && buttons.length > 0 && <MaterialSelect label="Select Button Name" value={formData.buttonName} onChange={(value) => handleInputChange("buttonName", value)}>
+                            {buttons.map(name => (
+                                <Option key={name} value={name}>
+                                    {name}
+                                </Option>
+                            ))}
+                        </MaterialSelect>}
+
+                    </div>
+
 
                 </DialogBody>
 
@@ -185,7 +203,6 @@ export default function AddOffer({ open, setOpen, loanTypes, updateFormData, for
                     </Button>
                 </DialogFooter>
             </Dialog>
-
 
         </>
     );
