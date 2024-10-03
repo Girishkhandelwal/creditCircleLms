@@ -1068,18 +1068,40 @@ export async function getLeadWiseEmailogs(req, res) {
 }
 
 export async function getOfferList(req, res) {
-
     try {
         const prisma = getPrismaInstance();
 
-        const offers = await prisma.OfferList.findMany();
+        // Destructure categoryId and searchTerm from req.query
+        const { categoryId, searchTerm } = req.query;
+
+        // Create a filter object
+        let filter = {};
+
+        // Add categoryId to filter if it exists in req.query
+        if (categoryId) {
+            filter.categoryId = parseInt(categoryId); // Ensure categoryId is an integer
+        }
+
+        // Add searchTerm filter on offerTitle if it exists
+        if (searchTerm) {
+            filter.offerTitle = {
+                contains: searchTerm, // Partial match search
+              
+            };
+        }
+
+        // Fetch offers with the filters
+        const offers = await prisma.OfferList.findMany({
+            where: filter
+        });
 
         res.status(200).json({ offers });
     } catch (error) {
         console.error('Error fetching offer data:', error);
         res.status(500).json({ error: 'An error occurred' });
     }
-};
+}
+
 
 export async function createOffer(req, res) {
     try {
