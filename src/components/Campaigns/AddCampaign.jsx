@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import Image from "next/image";
 
 export default function AddCampaign({ open, setOpen, loanTypes, columnNames, updateFormData, formData, campaigns, setFormData }) {
-
+    const offers = useSelector((state) => state.data.offers);
     const dispatch = useDispatch()
     const handleOpen = () => {
         setOpen(!open);
@@ -19,10 +19,13 @@ export default function AddCampaign({ open, setOpen, loanTypes, columnNames, upd
             CampaignFields: null,
             isActive: 0,
             LoanTypeId: null,
-            CampaignImg: null
+            CampaignImg: null,
+            OfferId: null
         }
         )
     }
+
+
 
     const columns = columnNames.map(column => ({ value: column, label: column }));
     const campaignInfo = useSelector((state) => state.data.campaignInfo);
@@ -38,7 +41,8 @@ export default function AddCampaign({ open, setOpen, loanTypes, columnNames, upd
                 CampaignFields: campaignInfo.CampaignFields,
                 isActive: campaignInfo.isActive,
                 LoanTypeId: campaignInfo.LoanTypeId,
-                CampaignImg: campaignInfo.CampaignImg
+                CampaignImg: campaignInfo.CampaignImg,
+                OfferId: campaignInfo.OfferId
             })
         }
 
@@ -85,14 +89,14 @@ export default function AddCampaign({ open, setOpen, loanTypes, columnNames, upd
         }
     }
 
-
+    console.log(formData)
 
     return (
         <>
             <Button onClick={handleOpen} variant="gradient">
-                {"Add Campaign"}   
+                {"Add Campaign"}
             </Button>
-             <Dialog open={open} size="lg" handler={handleOpen}>
+            <Dialog open={open} size="lg" handler={handleOpen}>
                 <DialogHeader>{campaignInfo ? "Edit Campaign" : "Add Campaign"}</DialogHeader>
                 <DialogBody>
 
@@ -155,6 +159,17 @@ export default function AddCampaign({ open, setOpen, loanTypes, columnNames, upd
                         {formData.CampaignImg && <div>
                             <Image src={`${HOST}/assets/campaignImage/${formData.CampaignImg}`} height={200} width={200} />
                         </div>}
+                    </div>
+
+                    <div>
+
+                        {offers && offers.length > 0 && <MaterialSelect label="Select Offer" value={formData.OfferId} onChange={(value) => handleInputChange("OfferId", value)}>
+                            {offers.map(offer => (
+                                <Option key={offer.id} value={offer.id}>
+                                    {offer.offerTitle}
+                                </Option>
+                            ))}
+                        </MaterialSelect>}
                     </div>
 
 

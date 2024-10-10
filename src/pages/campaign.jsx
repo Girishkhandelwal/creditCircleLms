@@ -26,7 +26,8 @@ export default function Campaign() {
     isActive: 0,
     LoanTypeId: null,
     isDashboard: 0,
-    CampaignImg: null
+    CampaignImg: null,
+    OfferId: null
   });
 
   const updateFormData = (field, value) => {
@@ -80,7 +81,7 @@ export default function Campaign() {
     }
   }
 
-  console.log(campaigns)
+
 
 
   return (

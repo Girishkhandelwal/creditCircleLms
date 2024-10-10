@@ -10,7 +10,6 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
 app.use("/api/auth/", AuthRoutes);
 app.use("/api/", OtherRoutes);
 app.use("/api/uploadImage", UploadImageRoute);
