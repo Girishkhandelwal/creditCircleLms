@@ -24,12 +24,13 @@ export default function DashboardBoxes() {
 
   return (
     <>
-      <div className="flex gap-2 justify-center">
+      <div className="bg-[#b5c9e8] p-4 rounded-lg">
+      <div className="flex gap-2 justify-between">
         {Object.keys(leadsCount).map((loanType) => (
           <Link
             key={loanType}
             href="/"
-            className={`h-fit w-[15%] bg-primary-color bg-opacity-10 rounded-lg flex justify-center items-center flex-col hover:shadow-lg hover:transition-all`}
+            className={`w-[15%] bg-gray-100  rounded-lg flex justify-center items-center flex-col hover:shadow-lg hover:transition-all`}
           >
             {loanType === "1" && (
               <Image
@@ -82,7 +83,7 @@ export default function DashboardBoxes() {
               />
             )}
 
-            <p className="text-primary-color font-primary-font font-semibold mt-2">
+            <p className="text-primary-color font-primary-font mt-2">
               {loanType === "1" && "Personal Loan"}
               {loanType === "2" && "Business Loan"}
               {loanType === "3" && "Income Plan"}
@@ -90,11 +91,12 @@ export default function DashboardBoxes() {
               {loanType === "5" && "Gold"}
               {loanType === "6" && "Credit Card"}
             </p>
-            <p className="text-primary-color font-primary-font font-extrabold text-lg">
+            <p className="text-black-color font-primary-font font-extrabold text-lg mb-3">
               <CountUp end={leadsCount[loanType] || 0} duration={4} />
             </p>
           </Link>
         ))}
+      </div>
       </div>
     </>
   );

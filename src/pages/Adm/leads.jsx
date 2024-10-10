@@ -78,8 +78,8 @@ export default function Leads() {
             {/* filter div*/}
             <div className="rounded-none mx-5">
 
-                <div className='flex'>
-                    <div className='w-1/2  border-[1px] rounded-md border-gray-500 mb-4 '>
+                <div className='flex justify-between mb-4'>
+                    <div className='w-1/2  border-[1px] rounded-md border-gray-500 '>
 
                         <Datepicker
                             value={dateRange}
@@ -91,14 +91,14 @@ export default function Leads() {
 
 
                     </div>
-                    <div className='mx-5'>
-                        <p className='text-lg'>Total Leads : {totalLeads}</p>
+                    <div className='p-1 bg-black'>
+                        <p className='text-lg flex justify-center  align-items-center;'>Total Leads : {totalLeads}</p>
                     </div>
 
                 </div>
 
                 <div className="flex flex-col justify-between gap-8 md:flex-row md:items-center">
-                    <div className="flex gap-4 gap-4">
+                    <div className="flex gap-4">
 
                         {loanTypes.length > 0 && <Select label="Select LoanType" value={selectedLoanType} onChange={(value) => { setSelectedLoanType(value); setSelectedCampaign("All") }}>
 

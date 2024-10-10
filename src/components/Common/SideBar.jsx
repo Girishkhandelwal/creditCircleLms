@@ -20,15 +20,15 @@ const SideBar = () => {
     }
 
     return (
-        <Card className="h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5">
+        <Card className="bg-blue-900 rounded-none">
             <div className="mb-2 p-4">
-                <Typography variant="h4" color="blue-gray" className='text-center'>
+                <Typography variant="h4" color="blue-gray" className='text-center text-white'>
                     CREDIT CIRCLE
                 </Typography>
             </div>
             <List>
                 {SideBarList.map((item) => (
-                    <Link href={`${item.pathName}`} key={item.id}>
+                    <Link className='text-white' href={`${item.pathName}`} key={item.id}>
                         <ListItem>
                             <ListItemPrefix>
                                 {item.icon}
@@ -47,19 +47,19 @@ const SideBar = () => {
                         />
                     }
                 >
-                    <ListItem className="p-0" selected={open}>
-                        <AccordionHeader onClick={() => setOpen(!open)} className="border-b-0 p-3">
+                    <ListItem className="p-0" selected={open} >
+                        <AccordionHeader onClick={() => setOpen(!open)} className="border-b-0 p-3 text-white">
                             <ListItemPrefix>
                                 <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                             </ListItemPrefix>
-                            <Typography color="blue-gray" className="mr-auto font-normal">
+                            <Typography color="blue-gray" className="mr-auto font-normal text-white">
                                 Logs
                             </Typography>
                         </AccordionHeader>
                     </ListItem>
                     <AccordionBody className="py-1">
                         <List className="p-0">
-                        <Link href={`/logs/whatsapp`}>
+                        <Link href={`/logs/whatsapp`} className='text-white'>
                             <ListItem>
                                 <ListItemPrefix>
                                     <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
@@ -67,7 +67,7 @@ const SideBar = () => {
                                 WhatsApp logs
                             </ListItem>
                             </Link>
-                            <Link href={`/logs/lead-push`}>
+                            <Link href={`/logs/lead-push`} className='text-white'>
                                 <ListItem>
                                     <ListItemPrefix>
                                         <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
@@ -76,7 +76,7 @@ const SideBar = () => {
                                 </ListItem>
                             </Link>
 
-                            <Link href={`/logs/email`}>
+                            <Link href={`/logs/email`} className='text-white'>
                             <ListItem>
                                 <ListItemPrefix>
                                     <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
@@ -88,7 +88,7 @@ const SideBar = () => {
                     </AccordionBody>
                 </Accordion>
 
-                <ListItem onClick={handleLogout}>
+                <ListItem className='text-white' onClick={handleLogout}>
                     <ListItemPrefix>
                         <PowerIcon className="h-5 w-5" />
                     </ListItemPrefix>

@@ -52,7 +52,7 @@ export default function LeadsTable({ selectedFields, selectedLoanType, selectedU
   return (
     <>
       <CardBody className="overflow-scroll px-0">
-        <div className='max-h-96'>
+        <div className='tableclass'>
           
         <table className="w-full min-w-max table-auto text-left ">
           <thead className='sticky -top-6 bg-blue-200'>

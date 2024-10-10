@@ -108,7 +108,7 @@ export default function Layout({ children }) {
     return (
 
         <>
-            {isLogin ? <div className="flex max-h-screen overflow-hidden">
+            {isLogin ? <div className="flex h-screen overflow-hidden">
 
                 <SideBar />
 

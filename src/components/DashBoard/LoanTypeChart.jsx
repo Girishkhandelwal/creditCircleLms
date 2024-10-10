@@ -174,30 +174,30 @@ export default function LoanTypeChart() {
   }, [selectedTimeFrame]);
 
   return (
-    <div className="px-10 mb-10">
-      <div className="lg:flex gap-5 my-5">
-        <Button
+    <div className="mb-4 p-4 bg-gray-100 mt-3 rounded-lg">
+      <div className="lg:flex gap-5 mb-5">
+        <Button className="bg-[#eb0000] text-white border-0"
           color="blue"
           variant="outlined"
           onClick={() => setSelectedTimeFrame("Year")}
         >
           Year
         </Button>
-        <Button
+         <Button className="bg-[#eb0000] text-white border-0"
           color="blue"
           variant="outlined"
           onClick={() => setSelectedTimeFrame("Month")}
         >
           Month
         </Button>
-        <Button
+         <Button className="bg-[#eb0000] text-white border-0"
           color="blue"
           variant="outlined"
           onClick={() => setSelectedTimeFrame("Week")}
         >
           Week
         </Button>
-        <Button
+         <Button className="bg-[#eb0000] text-white border-0"
           color="blue"
           variant="outlined"
           onClick={() => setSelectedTimeFrame("Day")}
@@ -206,7 +206,7 @@ export default function LoanTypeChart() {
         </Button>
       </div>
 
-      <div className="h-[50%] relative">
+      <div className="">
         <div className="absolute -translate-x-1/2 -translate-y-1/2 top-2/4 left-1/2">
           {loader && (
             <Spinner />
@@ -214,7 +214,7 @@ export default function LoanTypeChart() {
 
         </div>
         <div className="flex mx-auto my-auto">
-          <div className="w-full border border-gray-400 pt-0 rounded-xl h-fit my-auto shadow-xl z-10">
+          <div className="w-full border border-gray-400 pt-0 rounded-xl  my-auto shadow-xl z-10">
             <canvas id="myChart"></canvas>
           </div>
         </div>

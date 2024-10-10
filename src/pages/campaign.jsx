@@ -108,7 +108,7 @@ export default function Campaign() {
       </CardHeader>
 
       <CardBody className="overflow-scroll px-0">
-        <table className="w-full min-w-max table-auto text-left">
+        <table className="tableclass">
           <thead>
             <tr>
               {TABLE_HEAD.map((head) => (
@@ -160,7 +160,7 @@ export default function Campaign() {
                     </td>
 
                     <td className={classes}>
-                      <Image src={`${HOST}/assets/campaignImage/${CampaignImg}`} height={150} width={150} />
+                      <Image src={`${HOST}/assets/campaignImage/${CampaignImg}`}  height={150} width={150} />
                     </td>
 
 

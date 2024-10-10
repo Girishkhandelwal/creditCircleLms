@@ -11,3 +11,13 @@
 body{
   font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', Helvetica, Arial, sans-serif !important;
 }
+
+
+#myChart{
+  height: calc(100vh - 350px ) !important;
+  margin: auto;
+}
+
+.tableclass{
+  height: calc(100vh - 315px);
+}
