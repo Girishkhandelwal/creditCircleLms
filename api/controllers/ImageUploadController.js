@@ -17,6 +17,7 @@ export async function uploadImage(req, res) {
             const type = fields.type[0]; // Assuming 'type' is passed in the form data
             const uploadDir = type === 'offer' ? "./assets/offerImage/" : type == 'banner' ? "./assets/bannerImage" : "./assets/campaignImage/";
 
+
             const file = files.file[0]; // Access the first file directly
 
             const ext = path.extname(file.originalFilename);

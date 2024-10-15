@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost', 'da.ckwapi.com'],
+    domains: ['localhost', 'da.ckwapi.com', 'lms.creditcircle.in'],
   },
 };
 

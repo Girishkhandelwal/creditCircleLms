@@ -147,7 +147,7 @@ export default function OfferList() {
               const isLast = index === paginatedRows.length - 1;
               const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
               const categoryName = categories.find((a) => a.id == categoryId)?.categoryName
-              
+
               return (
                 id !== "All" && (
                   <tr key={index}>
